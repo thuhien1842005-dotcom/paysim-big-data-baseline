@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  *{box-sizing:border-box}html,body{margin:0;background:transparent;overflow:clip;color:#503741;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color-scheme:light}
+  .nova{--accent:#ad476b;position:relative;height:468px;isolation:isolate;overflow:clip}
+  .copy{position:relative;z-index:10;width:56%;padding:36px 0 12px;pointer-events:none}
+  .eyebrow{font-size:10px;font-weight:650;letter-spacing:2.4px;color:#9b667b;margin-bottom:20px}
+  h1{margin:0;font-size:clamp(40px,4.3vw,65px);line-height:.93;font-weight:400;letter-spacing:-.055em}
+  h1 span,h1 em{display:block}h1 em{margin-top:8px;font-family:Georgia,"Times New Roman",serif;font-weight:400;font-style:italic;letter-spacing:-.045em;color:#8c4564}
+  .description{max-width:520px;font-size:13px;line-height:1.8;color:#82626c;margin:20px 0 0}
+  .tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:19px}.tags span{display:inline-flex;align-items:center;gap:6px;border:1px solid #eddbd6;padding:5px 10px;border-radius:30px;background:#fffdf980;font-size:10px;color:#7d5c66}.tags svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.5}
+  .fluidScene{position:absolute;z-index:2;width:660px;height:440px;right:8px;top:14px;pointer-events:none}
+  .fluidGlow{position:absolute;width:78%;height:74%;left:8%;top:13%;border-radius:50%;background:radial-gradient(circle,rgba(204,91,139,.16),rgba(235,159,181,.06) 46%,transparent 72%);filter:blur(48px)}
+  .fluidImage{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center;opacity:.78;filter:saturate(.94) hue-rotate(105deg) brightness(1.06) drop-shadow(0 30px 55px rgba(173,71,107,.09));transform-origin:52% 52%}
+  /* Motion parameters ported from the user-provided NovaAIWorkspace module. */
+  .motion .fluidImage{animation:fluidFloat 10s ease-in-out infinite}
+  .motion .fluidGlow{animation:fluidGlowMotion 8s ease-in-out infinite alternate}
+  @keyframes fluidFloat{
+    0%,100%{transform:translate3d(0,0,0) rotate(-1deg) scale(1)}
+    35%{transform:translate3d(8px,-6px,0) rotate(.8deg) scale(1.015)}
+    70%{transform:translate3d(-5px,6px,0) rotate(-.7deg) scale(.995)}
+  }
+  @keyframes fluidGlowMotion{from{opacity:.42;transform:scale(.94)}to{opacity:.72;transform:scale(1.06)}}
+  .glass{border:1px solid rgba(255,255,255,.80);background:linear-gradient(145deg,rgba(255,255,255,.65),rgba(255,255,255,.37));backdrop-filter:blur(25px) saturate(128%);-webkit-backdrop-filter:blur(25px) saturate(128%);box-shadow:0 18px 45px rgba(60,50,42,.045),inset 0 0 0 1px rgba(35,30,25,.025)}
+  .analysisCard{position:absolute;z-index:16;top:30px;right:13px;width:247px;min-height:260px;padding:20px 21px;border-radius:22px}
+  .analysisTitle{display:flex;align-items:center;margin-bottom:12px}
+  .wave{height:27px;display:flex;align-items:center;gap:3px}.wave i{width:3px;display:block;border-radius:999px;background:var(--accent)}
+  .motion .wave i{animation:waveAnimation .95s ease-in-out infinite alternate}
+  @keyframes waveAnimation{from{transform:scaleY(.45);opacity:.42}to{transform:scaleY(1);opacity:1}}
+  .analysisEyebrow{font-size:9.5px;font-weight:650;letter-spacing:2px;text-transform:uppercase;color:#9b667b;margin-bottom:8px}
+  .analysisHeading{margin:0 0 16px;font-family:Georgia,"Times New Roman",serif;font-style:italic;font-weight:400;font-size:22px;line-height:1.18;letter-spacing:-.02em;color:#6e3550}
+  .analysisSteps{display:flex;flex-direction:column;gap:11px}.analysisStep{display:grid;grid-template-columns:16px 1fr;align-items:center;gap:10px;color:#7a6370;font-size:11.5px;line-height:1.35}.analysisStep svg{width:15px;height:15px;stroke:var(--accent);fill:none;stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round}
+  .online{position:absolute;z-index:20;left:60%;top:268px;height:34px;display:flex;align-items:center;gap:7px;padding:0 14px;border:1px solid #fff;border-radius:999px;background:#fffaf5a6;backdrop-filter:blur(12px);font-size:9px;color:#905572}.online i{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px rgba(173,71,107,.07)}
+  .paused *{animation-play-state:paused!important}
+  @media(max-width:980px){.copy{width:59%}h1{font-size:45px}.analysisCard{width:210px;right:4px;padding:18px}.analysisHeading{font-size:19px;margin-bottom:13px}.analysisStep{font-size:10.5px;gap:8px}.fluidScene{width:615px;height:410px;right:-15px;top:16px}.description{max-width:88%;font-size:12px}.online{left:57%;top:256px;font-size:8px}}
+  @media(max-width:619px){.nova{height:490px}.copy{width:100%;padding:12px 0 0}.eyebrow{font-size:8px;margin-bottom:14px}h1{font-size:42px}.description{margin-top:14px;max-width:95%;font-size:12px;line-height:1.65}.tags{margin-top:13px}.tags span{font-size:9px;padding:4px 8px}.fluidScene{width:385px;height:285px;right:-15px;top:190px}.fluidImage{opacity:.65}.analysisCard{top:238px;right:6px;width:190px;min-height:195px;padding:15px;border-radius:21px}.analysisTitle{margin-bottom:8px}.analysisEyebrow{font-size:8px;margin-bottom:6px}.analysisHeading{font-size:17px;margin-bottom:11px}.analysisSteps{gap:8px}.analysisStep{font-size:9.5px;gap:7px;grid-template-columns:13px 1fr}.analysisStep svg{width:12px;height:12px}.online{left:12px;top:auto;bottom:27px;padding:0 10px;font-size:8px}}
+  @media(prefers-reduced-motion:reduce){.nova *,.nova *::before,.nova *::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<section id="nova-workspace" class="nova motion" data-renderer="image" aria-label="PaySim transaction, pipeline, and risk workspace">
+  <div class="copy"><div class="eyebrow">A CLEARER VIEW OF YOUR DATA</div><h1><span>From a data stream</span><em>To each decision</em></h1><p>Discover trades, monitor operations,
+    and see risk signals</p><div class="tags"><span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg>Refreshes every 2 seconds</span><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 3v6c0 6-8 9-8 9s-8-3-8-9V6l8-3Z"/><path d="m8 12 3 3 5-6"/></svg>Read-only data</span></div></div>
+  <div class="fluidScene" aria-hidden="true"><div class="fluidGlow"></div><img class="fluidImage" src="__FLUID_IMAGE__" alt=""></div>
+  <aside class="analysisCard glass" aria-label="Workspace perspectives"><div class="analysisTitle"><div class="wave" aria-hidden="true"><i style="height:8px;animation-delay:0s"></i><i style="height:15px;animation-delay:-.13s"></i><i style="height:23px;animation-delay:-.26s"></i><i style="height:13px;animation-delay:-.39s"></i><i style="height:27px;animation-delay:-.52s"></i><i style="height:18px;animation-delay:-.65s"></i><i style="height:10px;animation-delay:-.78s"></i></div></div><div class="analysisEyebrow">ANALYTICAL SPACE</div><p class="analysisHeading">A stream of data.<br>Multiple<br>perspectives.</p><div class="analysisSteps"><div class="analysisStep"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 3v18l4-2 4 2 4-2 4 2V3l-4 2-4-2-4 2-4-2Z"/><path d="M8 9h8M8 13h6"/></svg><span>Explore trading</span></div><div class="analysisStep"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span>Operation Tracking</span></div><div class="analysisStep"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg><span>Risk Reconciliation</span></div></div></aside>
+  <span class="online"><i aria-hidden="true"></i>Read-only workspace</span>
+</section>
+<script>
+(() => {
+  const root = document.getElementById('nova-workspace');
+  const image = root.querySelector('.fluidImage');
+  let visible = true;
+  function sync() {
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const paused = !visible || document.hidden;
+    root.classList.toggle('paused', paused);
+    root.dataset.motion = reduced ? 'reduced' : paused ? 'paused' : 'running';
+  }
+  function ready() { root.dataset.asset = image.naturalWidth ? 'ready' : 'missing'; }
+  image.addEventListener('load', ready); image.addEventListener('error', ready);
+  if (image.complete) ready();
+  new IntersectionObserver(entries => { visible = entries[0].isIntersecting; sync(); }, { threshold:.01 }).observe(root);
+  matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', sync);
+  document.addEventListener('visibilitychange', sync);
+  const watch = setInterval(sync,400);
+  window.addEventListener('pagehide',()=>clearInterval(watch),{once:true});
+  sync();
+})();
+</script>
+</body>
+</html>

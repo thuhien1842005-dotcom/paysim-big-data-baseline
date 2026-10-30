@@ -1,0 +1,143 @@
+{
+  "review_date_local": "2026-10-28",
+  "review_scope": "Read-only inspection of source, existing documentation, running MongoDB data and existing HDFS model metadata. No training, pipeline restart or source modification was performed.",
+  "evidence_provenance": {
+    "current_runtime": "Derived snapshot transcribed from successful Docker CLI tool output during this review. The original stdout was not saved as an independent raw file. This JSON is not a new measurement of the 21:36:32 snapshot.",
+    "offline_benchmark": "Previously recorded results in docs/04_Huong_Dan_Doc_Va_Toi_Uu_MLlib.md. Not rerun during this review; original benchmark raw data was not found locally. artifacts/ch7-comparison-20261022 contained only __pycache__ files.",
+    "hdfs_metadata": "Selected metadata fields transcribed from successful hdfs dfs -cat output. The metadata was read after the MongoDB snapshot and does not have the same capture timestamp."
+  },
+  "derived_snapshot": {
+    "snapshot_time_utc": "2026-10-28T14:36:32.220Z",
+    "snapshot_time_local": "2026-10-28T21:36:32.220+07:00",
+    "time_basis": "evaluation_totals.updated_at of the document returned by the query; not a claim of an atomic snapshot across collections",
+    "database": "paysim",
+    "run_id": "run-20261028-115020",
+    "source_queries": [
+      "docker compose exec -T mongodb mongosh paysim --quiet --eval \"printjson(db.evaluation_totals.find().sort({updated_at:-1}).limit(3).toArray()); printjson(db.pipeline_metrics.find().sort({created_at:-1}).limit(1).toArray());\"",
+      "docker compose exec -T mongodb mongosh paysim --quiet --eval \"printjson(db.getCollectionNames()); printjson(db.runs.find({}, {ground_truth:0}).sort({started_at:-1}).limit(14).toArray()); printjson(db.system_metrics.find().toArray());\""
+    ],
+    "run_metadata_from_earlier_query": {
+      "status": "running",
+      "started_at": "2026-10-28T11:50:20.741Z",
+      "dataset_rows": 6362620,
+      "start_row": 1,
+      "max_events": 0,
+      "loop_dataset": true,
+      "events_per_second": 50,
+      "random_seed": 2026,
+      "duplicate_rate": 0,
+      "null_rate": 0,
+      "late_event_rate": 0,
+      "source_rows": 363200,
+      "unique_events_emitted": 363200,
+      "events_emitted": 363200,
+      "delivery_errors": 0,
+      "updated_at": "2026-10-28T14:36:28.963Z"
+    },
+    "evaluation_totals": {
+      "processed": 363300,
+      "ground_truth_missing": 0,
+      "model": {"tp": 148, "fp": 18364, "fn": 49, "tn": 344739},
+      "rule": {"tp": 44, "fp": 7892, "fn": 153, "tn": 355211},
+      "latest_ranking": {"pr_auc": 0, "top_k": 100, "fraud_in_top_k": 0, "precision_at_k": 0, "recall_at_k": 0},
+      "updated_at": "2026-10-28T14:36:32.220Z"
+    },
+    "latest_pipeline_metric": {
+      "batch_id": 1036,
+      "created_at": "2026-10-28T14:36:32.390Z",
+      "input_rows": 500,
+      "processed_rows": 500,
+      "processed_total": 363300,
+      "emitted_snapshot": 363300,
+      "event_completeness": 1,
+      "aggregate_correctness": true,
+      "transformation_correctness": true,
+      "consumer_lag": 0,
+      "scoring_latency_ms_per_1k": 606.1213380016852
+    },
+    "derived_metrics": {
+      "processed_fraction_of_dataset_percent": 5.70991195450931,
+      "model_precision_percent": 0.7994814174589455,
+      "model_recall_percent": 75.1269035532995,
+      "model_f1_percent": 1.5821262493986852,
+      "model_alert_rate_percent": 5.09551334984861
+    },
+    "interpretation_limits": [
+      "This run was still running and had not completed the 6362620-row dataset.",
+      "The run replays from source row 1 while training uses the first 300000 source rows. Live cumulative metrics overlap training data and are unsuitable for a claim of independent generalization or a controlled model BEFORE/AFTER comparison.",
+      "runs and evaluation_totals were read at different times. Their 363200 and 363300 counts must not be treated as an atomic inconsistency.",
+      "The latest batch ranking values are zero. A zero rank-AP on a batch without fraud does not establish poor full-run quality; the evaluation document alone does not store that batch's fraud count.",
+      "Offline grouped-score AP and latest-batch rank-AP on the dashboard are different aggregations and should not be substituted for one another."
+    ]
+  },
+  "current_hdfs_and_log_observations": {
+    "queries": [
+      "docker compose exec -T namenode hdfs dfs -ls -R /data/paysim/models",
+      "docker compose logs spark --since 4h | Select-String -Pattern 'Loading Spark|Model trained|Training baseline'",
+      "docker compose exec -T namenode hdfs dfs -cat /data/paysim/models/baseline-decision-tree-v1/stages/3_DecisionTreeClassifier_2cb59b4ae3b8/metadata/part-00000-1688628f-3e26-467a-a851-c70bea157706-c000.txt",
+      "docker compose exec -T namenode hdfs dfs -cat /data/paysim/models/baseline/stages/3_LogisticRegression_822caa441a65/metadata/part-00000-80251b14-4e00-41af-87a4-289f53d1d7e3-c000.txt"
+    ],
+    "spark_log_line": "Loading Spark MLlib model from hdfs://namenode:9000/data/paysim/models/baseline-decision-tree-v1",
+    "models_found": ["/data/paysim/models/baseline", "/data/paysim/models/baseline-decision-tree-v1"],
+    "models_not_observed": ["Random Forest", "GBT"],
+    "decision_tree_metadata": {
+      "class": "org.apache.spark.ml.classification.DecisionTreeClassificationModel",
+      "timestamp": 1793114788126,
+      "sparkVersion": "4.0.0",
+      "uid": "DecisionTreeClassifier_2cb59b4ae3b8",
+      "paramMap": {"maxDepth": 5, "labelCol": "label", "weightCol": "class_weight", "seed": 2026, "minInstancesPerNode": 20, "maxBins": 32, "featuresCol": "features"},
+      "numFeatures": 4,
+      "numClasses": 2
+    },
+    "logistic_regression_metadata": {
+      "class": "org.apache.spark.ml.classification.LogisticRegressionModel",
+      "timestamp": 1786546193537,
+      "sparkVersion": "4.0.0",
+      "uid": "LogisticRegression_822caa441a65",
+      "paramMap": {"labelCol": "label", "regParam": 0.01, "maxIter": 20, "elasticNetParam": 0.0, "featuresCol": "features", "weightCol": "class_weight"}
+    }
+  },
+  "source_review": {
+    "file": "spark/pipeline.py",
+    "line_references": {"features": 140, "model_selection": 157, "before_lr": 179, "active_dt": 193, "load_existing_model": 235, "training_read": 243, "class_weight": 259, "assembler": 270, "evaluation_join": 296, "scoring": 525, "threshold": 540},
+    "unchanged_conditions_across_models": ["one-hot type", "log1p(amount)", "((step-1)%24) hour of day", "training restricted to CASH_OUT and TRANSFER", "positive class weight negatives/positives", "threshold 0.50"],
+    "new_change": "Replace Logistic Regression with one selected tree classifier. DT is active; RF and GBT are independent alternatives, not three combined pipeline stages.",
+    "label_leakage_check": "isFraud is used as the training label and is joined from MongoDB ground_truth after scoring for evaluation; it is absent from the VectorAssembler input columns."
+  },
+  "offline_benchmark_documented": {
+    "source": "docs/04_Huong_Dan_Doc_Va_Toi_Uu_MLlib.md",
+    "source_lines": {"test_table": 238, "environment_and_sets": 328, "validation": 330, "ap_aggregation": 333, "timing": 334, "component_benchmark_limit": 336, "audit_table": 340, "reused_audit_limit": 350},
+    "environment": {"spark": "4.0.0", "python": "3.12.3", "java": "17", "master": "local[2]", "driver_memory_gb": 2, "shuffle_partitions": 2},
+    "training": {"source_rows": 300000, "candidate_rows": 130306, "fraud_rows": 181},
+    "validation": {"step_range": [16, 20], "rows": 227388, "fraud_rows": 48, "ap_percent": {"LR": 0.113, "DT": 14.525, "RF": 1.065, "GBT": 0.215}},
+    "test": {
+      "step_range": [33, 40], "rows": 246565, "fraud_rows": 123, "threshold": 0.5,
+      "results": [
+        {"model": "LR", "ap_percent": 0.250, "tp": 43, "fp": 14522, "fn_derived": 80, "tn_derived": 231920, "precision_percent_derived": 0.29522828698935805, "recall_percent": 34.96, "f1_percent": 0.586},
+        {"model": "DT", "ap_percent": 11.698, "tp": 62, "fp": 12454, "fn_derived": 61, "tn_derived": 233988, "precision_percent_derived": 0.49536593160754233, "recall_percent": 50.41, "f1_percent": 0.981},
+        {"model": "RF", "ap_percent": 1.082, "tp": 64, "fp": 10158, "fn_derived": 59, "tn_derived": 236284, "precision_percent_derived": 0.6261005674036392, "recall_percent": 52.03, "f1_percent": 1.237},
+        {"model": "GBT", "ap_percent": 4.895, "tp": 35, "fp": 6933, "fn_derived": 88, "tn_derived": 239509, "precision_percent_derived": 0.5022962112514351, "recall_percent": 28.46, "f1_percent": 0.987}
+      ]
+    },
+    "dt_vs_lr_test_derived": {"additional_true_positives": 19, "recall_percentage_point_increase": 15.447154471544714, "false_positive_reduction_percent": 14.240462746178217, "ap_percentage_point_increase": 11.448, "ap_multiple": 46.792},
+    "audit": {
+      "step_range": [41, 48], "rows": 206554, "fraud_rows": 108,
+      "results": [
+        {"model": "LR", "ap_percent": 0.149, "tp": 0, "fp": 5, "recall_percent": 0, "f1_percent": 0},
+        {"model": "DT", "ap_percent": 12.413, "tp": 44, "fp": 10784, "recall_percent": 40.74, "f1_percent": 0.805, "precision_percent_derived": 0.40635389730328775},
+        {"model": "RF", "ap_percent": 1.561, "tp": 54, "fp": 8673, "recall_percent": 50, "f1_percent": 1.222},
+        {"model": "GBT", "ap_percent": 0.296, "tp": 22, "fp": 5694, "recall_percent": 20.37, "f1_percent": 0.755}
+      ]
+    },
+    "timing_ms_per_1000_rows": {"scope": "transform plus local Parquet write, 1 warm-up and 10 batches of 10000 rows per model", "LR_first": 33.47, "LR_last": 26.04, "DT": 29.88, "RF": 31.85, "GBT": 30.58},
+    "limitations": [
+      "DT selected for highest validation AP, not the highest fixed-threshold F1; RF has higher test Recall and F1 at threshold 0.50.",
+      "DT absolute precision is still below 0.5 percent on test and audit, leaving a high false-alert handling burden.",
+      "Test and audit have already been examined. A future independent improvement evaluation needs a new untouched temporal window.",
+      "Each classifier has one fixed preset; this is not an exhaustive hyperparameter search.",
+      "Timing variation between the two LR measurements prevents a supported claim of faster model scoring.",
+      "No verified ROC-AUC or model training-duration result was found.",
+      "These are documented component benchmark results, not an end-to-end acceptance test or measurements of the current dashboard run."
+    ]
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "source": "running Docker dashboard reading existing MongoDB; no pipeline writes",
+  "run_id": "run-20260930-115737",
+  "run_status": "STOPPED",
+  "transaction_window_empty": true,
+  "pages": [
+    {
+      "page_index": 0,
+      "headings": [
+        "Dòng dữ liệu đang vận hành",
+        "Tốc độ ingest và xử lý",
+        "Kafka consumer lag",
+        "Latency p95",
+        "Nhịp vận hành",
+        "Hoạt động gần đây"
+      ]
+    },
+    {
+      "page_index": 1,
+      "headings": [
+        "Metrics theo 10 tracks"
+      ]
+    },
+    {
+      "page_index": 2,
+      "headings": [
+        "Rule baseline vs Spark MLlib",
+        "Confusion matrix — Spark MLlib",
+        "Cơ cấu giao dịch",
+        "Cảnh báo mới nhất"
+      ]
+    },
+    {
+      "page_index": 3,
+      "headings": [
+        "Giao dịch vừa đi qua Spark",
+        "Cơ cấu giao dịch"
+      ]
+    }
+  ],
+  "filter_reset": true,
+  "reduced_motion": true,
+  "browser_errors": []
+}

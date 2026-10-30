@@ -105,6 +105,69 @@ def hdfs_content_summary(spark: SparkSession, path: str) -> dict:
     return {"bytes": int(summary.getLength()), "files": int(summary.getFileCount())}
 
 
+def _hdfs_file_readable(filesystem, hadoop_path) -> bool:
+    try:
+        stream = filesystem.open(hadoop_path)
+        try:
+            stream.read()
+        finally:
+            stream.close()
+        return True
+    except Exception:
+        return False
+
+
+def repair_checkpoint_if_needed(spark: SparkSession, checkpoint_path: str) -> None:
+    try:
+        hadoop_configuration = spark.sparkContext._jsc.hadoopConfiguration()
+        filesystem = spark.sparkContext._jvm.org.apache.hadoop.fs.FileSystem.get(
+            hadoop_configuration
+        )
+        PathCls = spark.sparkContext._jvm.org.apache.hadoop.fs.Path
+        root_path = PathCls(checkpoint_path)
+        if not filesystem.exists(root_path):
+            return
+
+        metadata_path = PathCls(f"{checkpoint_path.rstrip('/')}/metadata")
+        if filesystem.exists(metadata_path) and not _hdfs_file_readable(
+            filesystem, metadata_path
+        ):
+            print(
+                f"Corrupt checkpoint metadata detected at {metadata_path}; resetting checkpoint.",
+                flush=True,
+            )
+            filesystem.delete(root_path, True)
+            return
+
+        for subdir in ("commits", "offsets"):
+            sub_path = PathCls(f"{checkpoint_path.rstrip('/')}/{subdir}")
+            if not filesystem.exists(sub_path):
+                continue
+            statuses = filesystem.listStatus(sub_path)
+            batch_files = []
+            for status in statuses:
+                if status.isFile():
+                    name = status.getPath().getName()
+                    if name.isdigit():
+                        batch_files.append((int(name), status.getPath()))
+            batch_files.sort(key=lambda item: item[0], reverse=True)
+            for batch_num, file_path in batch_files[:5]:
+                if not _hdfs_file_readable(filesystem, file_path):
+                    print(
+                        f"Removing unreadable checkpoint file {file_path} from interrupted shutdown.",
+                        flush=True,
+                    )
+                    filesystem.delete(file_path, False)
+                    if subdir == "offsets":
+                        commit_path = PathCls(
+                            f"{checkpoint_path.rstrip('/')}/commits/{batch_num}"
+                        )
+                        if filesystem.exists(commit_path):
+                            filesystem.delete(commit_path, False)
+    except Exception as error:
+        print(f"Checkpoint inspection warning: {error}", flush=True)
+
+
 def start_stream_with_hdfs_retry(
     start_query: Callable[[], StreamingQuery],
 ) -> StreamingQuery:
@@ -876,6 +939,7 @@ def main() -> None:
     )
 
     processor = build_batch_processor(spark, model, mongo_client)
+    repair_checkpoint_if_needed(spark, CHECKPOINT_PATH)
     query = start_stream_with_hdfs_retry(
         lambda: (
             parsed.writeStream.foreachBatch(processor)

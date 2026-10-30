@@ -1,0 +1,159 @@
+{
+  "source": "saved real pipeline snapshot replayed in memory",
+  "snapshot_file": "docs\\evidence\\dashboard-ui\\snapshot.json",
+  "desktop_pages": 8,
+  "results": [
+    {
+      "view": "workspace",
+      "page": "📡 Live Control Room",
+      "metrics": {
+        "Nguồn đã phát": "5,200",
+        "Spark đã xử lý": "4,700",
+        "Fraud alerts": "1,004",
+        "Ingest hiện tại": "50.0 ev/s",
+        "Processing throughput": "70.3 ev/s",
+        "End-to-end latency p95": "14,905 ms"
+      },
+      "browser_errors": [],
+      "horizontal_overflow": false,
+      "screenshot": "workspace-1-desktop.png"
+    },
+    {
+      "view": "workspace",
+      "page": "🎯 Metrics theo 10 tracks",
+      "metrics": {
+        "Nguồn đã phát": "5,200",
+        "Spark đã xử lý": "4,700",
+        "Fraud alerts": "1,004",
+        "Ingest hiện tại": "50.0 ev/s",
+        "Processing throughput": "70.3 ev/s",
+        "End-to-end latency p95": "14,905 ms"
+      },
+      "browser_errors": [],
+      "horizontal_overflow": false,
+      "screenshot": "workspace-2-desktop.png"
+    },
+    {
+      "view": "workspace",
+      "page": "🛡️ Fraud & Business",
+      "metrics": {
+        "Nguồn đã phát": "5,200",
+        "Spark đã xử lý": "4,700",
+        "Fraud alerts": "1,004",
+        "Ingest hiện tại": "50.0 ev/s",
+        "Processing throughput": "70.3 ev/s",
+        "End-to-end latency p95": "14,905 ms"
+      },
+      "browser_errors": [],
+      "horizontal_overflow": false,
+      "screenshot": "workspace-3-desktop.png"
+    },
+    {
+      "view": "workspace",
+      "page": "🔎 Dòng dữ liệu mới",
+      "metrics": {
+        "Nguồn đã phát": "5,200",
+        "Spark đã xử lý": "4,700",
+        "Fraud alerts": "1,004",
+        "Ingest hiện tại": "50.0 ev/s",
+        "Processing throughput": "70.3 ev/s",
+        "End-to-end latency p95": "14,905 ms"
+      },
+      "browser_errors": [],
+      "horizontal_overflow": false,
+      "screenshot": "workspace-4-desktop.png"
+    },
+    {
+      "view": "workspace",
+      "page": "📡 Live Control Room",
+      "mobile": true,
+      "horizontal_overflow": false,
+      "browser_errors": [],
+      "screenshot": "workspace-1-mobile.png"
+    },
+    {
+      "view": "workspace",
+      "page": "🔎 Dòng dữ liệu mới",
+      "mobile": true,
+      "horizontal_overflow": false,
+      "browser_errors": [],
+      "screenshot": "workspace-4-mobile.png"
+    },
+    {
+      "view": "baseline",
+      "page": "📡 Live Control Room",
+      "metrics": {
+        "Nguồn đã phát": "5,200",
+        "Spark đã xử lý": "4,700",
+        "Fraud alerts": "1,004",
+        "Ingest hiện tại": "50.0 ev/s",
+        "Processing throughput": "70.3 ev/s",
+        "End-to-end latency p95": "14,905 ms"
+      },
+      "browser_errors": [],
+      "horizontal_overflow": false,
+      "screenshot": "baseline-1-desktop.png"
+    },
+    {
+      "view": "baseline",
+      "page": "🎯 Metrics theo 10 tracks",
+      "metrics": {
+        "Nguồn đã phát": "5,200",
+        "Spark đã xử lý": "4,700",
+        "Fraud alerts": "1,004",
+        "Ingest hiện tại": "50.0 ev/s",
+        "Processing throughput": "70.3 ev/s",
+        "End-to-end latency p95": "14,905 ms"
+      },
+      "browser_errors": [],
+      "horizontal_overflow": false,
+      "screenshot": "baseline-2-desktop.png"
+    },
+    {
+      "view": "baseline",
+      "page": "🛡️ Fraud & Business",
+      "metrics": {
+        "Nguồn đã phát": "5,200",
+        "Spark đã xử lý": "4,700",
+        "Fraud alerts": "1,004",
+        "Ingest hiện tại": "50.0 ev/s",
+        "Processing throughput": "70.3 ev/s",
+        "End-to-end latency p95": "14,905 ms"
+      },
+      "browser_errors": [],
+      "horizontal_overflow": false,
+      "screenshot": "baseline-3-desktop.png"
+    },
+    {
+      "view": "baseline",
+      "page": "🔎 Dòng dữ liệu mới",
+      "metrics": {
+        "Nguồn đã phát": "5,200",
+        "Spark đã xử lý": "4,700",
+        "Fraud alerts": "1,004",
+        "Ingest hiện tại": "50.0 ev/s",
+        "Processing throughput": "70.3 ev/s",
+        "End-to-end latency p95": "14,905 ms"
+      },
+      "browser_errors": [],
+      "horizontal_overflow": false,
+      "screenshot": "baseline-4-desktop.png"
+    },
+    {
+      "view": "baseline",
+      "page": "📡 Live Control Room",
+      "mobile": true,
+      "horizontal_overflow": false,
+      "browser_errors": [],
+      "screenshot": "baseline-1-mobile.png"
+    },
+    {
+      "view": "baseline",
+      "page": "🔎 Dòng dữ liệu mới",
+      "mobile": true,
+      "horizontal_overflow": false,
+      "browser_errors": [],
+      "screenshot": "baseline-4-mobile.png"
+    }
+  ]
+}

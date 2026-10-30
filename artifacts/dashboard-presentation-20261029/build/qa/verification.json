@@ -1,0 +1,141 @@
+{
+  "images": 11,
+  "slides": 8,
+  "views": [
+    {
+      "slide": 1,
+      "scrollHeight": 810,
+      "height": 810,
+      "footerTop": 749.75,
+      "footerBottom": 782,
+      "text": [
+        {
+          "type": "summary",
+          "top": 149.234375,
+          "bottom": 486.421875
+        }
+      ]
+    },
+    {
+      "slide": 2,
+      "scrollHeight": 810,
+      "height": 810,
+      "footerTop": 749.75,
+      "footerBottom": 782,
+      "text": [
+        {
+          "type": "summary",
+          "top": 149.234375,
+          "bottom": 486.421875
+        }
+      ]
+    },
+    {
+      "slide": 3,
+      "scrollHeight": 810,
+      "height": 810,
+      "footerTop": 749.75,
+      "footerBottom": 782,
+      "text": [
+        {
+          "type": "pair",
+          "top": 580.078125,
+          "bottom": 742.578125
+        }
+      ]
+    },
+    {
+      "slide": 4,
+      "scrollHeight": 810,
+      "height": 810,
+      "footerTop": 749.75,
+      "footerBottom": 782,
+      "text": [
+        {
+          "type": "flow",
+          "top": 153.234375,
+          "bottom": 694.234375
+        }
+      ]
+    },
+    {
+      "slide": 5,
+      "scrollHeight": 810,
+      "height": 810,
+      "footerTop": 749.75,
+      "footerBottom": 782,
+      "text": [
+        {
+          "type": "newvisual",
+          "top": 149.234375,
+          "bottom": 727.53125
+        },
+        {
+          "type": "two-shots",
+          "top": 149.234375,
+          "bottom": 434.5625
+        },
+        {
+          "type": "summary",
+          "top": 149.234375,
+          "bottom": 582.8125
+        }
+      ]
+    },
+    {
+      "slide": 6,
+      "scrollHeight": 810,
+      "height": 810,
+      "footerTop": 749.75,
+      "footerBottom": 782,
+      "text": [
+        {
+          "type": "newvisual",
+          "top": 149.234375,
+          "bottom": 735.390625
+        },
+        {
+          "type": "summary",
+          "top": 149.234375,
+          "bottom": 551.546875
+        }
+      ]
+    },
+    {
+      "slide": 7,
+      "scrollHeight": 810,
+      "height": 810,
+      "footerTop": 749.75,
+      "footerBottom": 782,
+      "text": [
+        {
+          "type": "comparison-visual",
+          "top": 149.234375,
+          "bottom": 749.75
+        },
+        {
+          "type": "pair",
+          "top": 149.234375,
+          "bottom": 491.078125
+        }
+      ]
+    },
+    {
+      "slide": 8,
+      "scrollHeight": 810,
+      "height": 810,
+      "footerTop": 749.75,
+      "footerBottom": 782,
+      "text": [
+        {
+          "type": "summary",
+          "top": 149.234375,
+          "bottom": 459.625
+        }
+      ]
+    }
+  ],
+  "controls": "slide mode, Home/End, arrows, image zoom, Escape and S passed",
+  "mobile_horizontal_overflow": false,
+  "errors": []
+}

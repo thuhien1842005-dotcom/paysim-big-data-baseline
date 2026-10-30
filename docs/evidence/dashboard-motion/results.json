@@ -1,0 +1,73 @@
+{
+  "source": "isolated in-memory pipeline replay",
+  "idle_changed_pixels": 40590,
+  "reduced_motion_changed_pixels": 0,
+  "survives_data_refresh": true,
+  "mobile_artwork_visible": true,
+  "pauses_offscreen": true,
+  "webgl_required": false,
+  "browser_errors": [],
+  "animation_parameters": {
+    "image": {
+      "name": "fluidFloat",
+      "duration": "10s",
+      "easing": "ease-in-out",
+      "direction": "normal",
+      "iterations": "infinite"
+    },
+    "glow": {
+      "name": "fluidGlowMotion",
+      "duration": "8s",
+      "easing": "ease-in-out",
+      "direction": "alternate",
+      "iterations": "infinite"
+    },
+    "wave": {
+      "name": "waveAnimation",
+      "duration": "0.95s",
+      "easing": "ease-in-out",
+      "direction": "alternate",
+      "iterations": "infinite"
+    },
+    "bars": [
+      {
+        "height": 8,
+        "delay": 0
+      },
+      {
+        "height": 15,
+        "delay": -0.13
+      },
+      {
+        "height": 23,
+        "delay": -0.26
+      },
+      {
+        "height": 13,
+        "delay": -0.39
+      },
+      {
+        "height": 27,
+        "delay": -0.52
+      },
+      {
+        "height": 18,
+        "delay": -0.65
+      },
+      {
+        "height": 10,
+        "delay": -0.78
+      }
+    ],
+    "cardAnimation": "none",
+    "imageSize": [
+      1536,
+      1024
+    ],
+    "keyframes": [
+      "@keyframes fluidFloat { \n  0%, 100% { transform: translate3d(0px, 0px, 0px) rotate(-1deg) scale(1); }\n  35% { transform: translate3d(8px, -6px, 0px) rotate(0.8deg) scale(1.015); }\n  70% { transform: translate3d(-5px, 6px, 0px) rotate(-0.7deg) scale(0.995); }\n}",
+      "@keyframes fluidGlowMotion { \n  0% { opacity: 0.42; transform: scale(0.94); }\n  100% { opacity: 0.72; transform: scale(1.06); }\n}",
+      "@keyframes waveAnimation { \n  0% { transform: scaleY(0.45); opacity: 0.42; }\n  100% { transform: scaleY(1); opacity: 1; }\n}"
+    ]
+  }
+}

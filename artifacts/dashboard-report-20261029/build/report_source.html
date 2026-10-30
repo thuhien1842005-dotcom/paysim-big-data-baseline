@@ -1,0 +1,255 @@
+﻿<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+@page{size:8.5in 11in;margin:0.78in 0.85in}
+body{font-family:"Times New Roman";font-size:13pt;color:#000;line-height:1.15}
+p{margin:0 0 7pt;text-align:justify;text-indent:18pt}
+.doc-title{font-size:18pt;font-weight:bold;text-align:center;text-indent:0;margin-bottom:10pt}
+.subtitle{text-align:center;text-indent:0;font-size:13pt;margin-bottom:6pt}
+.date{text-align:center;text-indent:0;font-size:11pt;margin-bottom:18pt}
+h1{font-size:15pt;color:#000;margin:16pt 0 8pt;page-break-after:avoid}
+h2{font-size:13pt;color:#000;margin:12pt 0 6pt;page-break-after:avoid}
+.figure{text-align:center;text-indent:0;margin:10pt 0 5pt;page-break-after:avoid}
+.caption{text-align:center;text-indent:0;font-size:11pt;font-style:italic;margin:3pt 0 4pt;page-break-after:avoid}
+.source{font-size:10pt;text-indent:0;margin:0 0 12pt;text-align:left}
+.reference{font-size:11pt;text-indent:0;text-align:left;margin-bottom:7pt}
+table{border-collapse:collapse;width:100%;margin:8pt 0 12pt;table-layout:fixed}
+td,th{border:1pt solid #d9d9d9;padding:6pt;font-size:11pt;vertical-align:middle;text-align:left}
+th{background:#30465d;color:#fff;font-weight:bold}tr{page-break-inside:avoid}
+.image-pair td{text-align:center}.image-pair{page-break-inside:avoid}
+</style></head><body>
+<p class="doc-title">B&#225;o c&#225;o tối ưu dashboard PaySim</p>
+<p class="subtitle">Đ&#225;nh gi&#225; giao diện gốc v&#224; PaySim Data Workspace</p>
+<p class="date">Ng&#224;y l&#7853;p 29/10/2026</p>
+<p>Phần tối ưu dashboard tập trung v&#224;o tổ chức th&#244;ng tin v&#224; thao t&#225;c khai th&#225;c dữ liệu. Giao diện PaySim Data Workspace giữ c&#225;c chỉ số cốt l&#245;i, bổ sung bộ lọc kết hợp, v&#249;ng chi tiết giao dịch theo Event ID v&#224; xuất CSV theo tập đang hiển thị. C&#225;c thay đổi đ&#227; c&#243; trong m&#227; nguồn v&#224; bằng chứng kiểm thử giao diện. Lợi &#237;ch về thời gian đọc, t&#236;m kiếm v&#224; ra quyết định hiện vẫn l&#224; kỳ vọng v&#236; chưa c&#243; nghi&#234;n cứu người d&#249;ng hoặc ph&#233;p đo hiệu năng trước v&#224; sau.</p>
+<h1>1 Mục ti&#234;u v&#224; phạm vi</h1>
+<p>Dashboard l&#224; điểm quan s&#225;t luồng giao dịch của dự &#225;n PaySim. Người sử dụng cần theo d&#245;i số bản ghi nguồn đ&#227; ph&#225;t, số bản ghi Spark đ&#227; xử l&#253;, th&#244;ng lượng, độ trễ v&#224; c&#225;c cảnh b&#225;o dự đo&#225;n. Trong b&#225;o c&#225;o n&#224;y, hai vai tr&#242; ph&#226;n t&#237;ch được sử dụng để đ&#225;nh gi&#225; thiết kế l&#224; người vận h&#224;nh theo d&#245;i hệ thống v&#224; người ph&#226;n t&#237;ch kiểm tra giao dịch. Đ&#226;y l&#224; c&#225;c vai tr&#242; d&#249;ng để x&#226;y dựng t&#236;nh huống đ&#225;nh gi&#225;, chưa phải kết quả khảo s&#225;t người d&#249;ng.</p>
+<p>Đối tượng trước cải tiến l&#224; renderer Control Room gốc c&#242;n được giữ trong dashboard_core.py. Đối tượng sau cải tiến l&#224; PaySim Data Workspace m&#224;u hồng đang được gọi từ app.py qua view_workspace.py. C&#225;c phương &#225;n Operations, Report v&#224; Studio l&#224; c&#225;c thiết kế trung gian trong lịch sử dự &#225;n, kh&#244;ng được đồng nhất với giao diện gốc trong cặp ảnh đối chứng. Checkpoint 03ac9a5 đ&#227; chứa những phương &#225;n trung gian n&#224;y. [1][2]</p>
+<p>Phạm vi b&#225;o c&#225;o gồm bố cục, ph&#226;n cấp chỉ số, biểu đồ, bộ lọc, xem chi tiết, xuất dữ liệu, h&#224;nh vi l&#224;m mới, chuyển động, khả năng hiển thị v&#224; cấu tr&#250;c m&#227; giao diện. C&#225;c thay đổi độc lập về Spark hoặc m&#244; h&#236;nh học m&#225;y kh&#244;ng được t&#237;nh l&#224; kết quả tối ưu dashboard. Trong working tree được r&#224; so&#225;t, Spark c&#243; thay đổi ri&#234;ng về kiểm tra v&#224; phục hồi checkpoint; v&#236; vậy kh&#244;ng khẳng định to&#224;n bộ m&#227; pipeline được giữ nguy&#234;n. [1]</p>
+<h1>2 Phương ph&#225;p đối chiếu v&#224; nguồn bằng chứng</h1>
+<p>Việc đối chiếu kết hợp m&#227; nguồn, ảnh chụp, kết quả kiểm thử đ&#227; lưu v&#224; quan s&#225;t giao diện đang chạy. Bộ ảnh dashboard-english d&#249;ng c&#249;ng snapshot pipeline lưu ng&#224;y 23/10/2026, được ph&#225;t lại trong bộ nhớ bằng MongoDB giả lập. Cặp ảnh n&#224;y ph&#249; hợp để so s&#225;nh bố cục v&#224; đối chiếu gi&#225; trị tại c&#249;ng dữ liệu đầu v&#224;o. Nh&#227;n RUNNING trong ảnh replay chỉ m&#244; tả trạng th&#225;i được lưu, kh&#244;ng x&#225;c nhận backend hiện tại đang hoạt động. [3]</p>
+<p>C&#225;c ảnh chụp dashboard m&#224;u hồng ng&#224;y 29/10/2026 được lấy từ địa chỉ cục bộ http://127.0.0.1:8501 trong phi&#234;n tr&#236;nh duyệt ri&#234;ng. Ch&#250;ng phản &#225;nh giao diện v&#224; dữ liệu ở thời điểm chụp; c&#225;c trang được chụp lần lượt n&#234;n gi&#225; trị c&#243; thể thay đổi giữa ảnh. Kh&#244;ng d&#249;ng những con số n&#224;y để so s&#225;nh tốc độ hoặc độ ch&#237;nh x&#225;c với snapshot ng&#224;y 23/10. Một số nh&#227;n trong ảnh lịch sử l&#224; Overview, Pipeline metrics, Fraud &amp; business v&#224; Transactions; bản đang chạy d&#249;ng Live Control Room, Metrics theo 10 tracks, Fraud &amp; Business v&#224; New data streams. [4]</p>
+<table class="image-pair"><tr><th width="50%">Control Room gốc</th><th width="50%">Workspace tại mốc ảnh đối chứng</th></tr><tr><td><img src="file:///C:/Users/admin/BD/paysim-big-data-baseline/docs/evidence/dashboard-english/baseline-1-desktop.png" width="293" height="202" style="width:220pt;height:151.25pt"></td><td><img src="file:///C:/Users/admin/BD/paysim-big-data-baseline/docs/evidence/dashboard-english/workspace-1-desktop.png" width="293" height="202" style="width:220pt;height:151.25pt"></td></tr></table>
+<p class="caption">H&#236;nh 1  Đối chiếu bố cục tr&#234;n c&#249;ng snapshot ng&#224;y 23/10/2026</p>
+<p class="source">Nguồn: docs/evidence/dashboard-english/. C&#249;ng viewport 1600 &#215; 1100; nh&#227;n của ảnh Workspace thuộc mốc giao diện đ&#227; lưu.</p>
+<p>Trong c&#249;ng v&#249;ng nh&#236;n ở H&#236;nh 1, bản gốc đ&#227; cho thấy một phần biểu đồ. Ở Workspace, khối giới thiệu v&#224; c&#225;c thẻ KPI chiếm nhiều chiều cao hơn, đẩy biểu đồ xuống dưới. Quan s&#225;t n&#224;y cho thấy thiết kế mới c&#243; đ&#225;nh đổi về diện t&#237;ch hiển thị, thay v&#236; mặc định thuận lợi hơn trong mọi nhiệm vụ.</p>
+<h1>3 Đ&#225;nh gi&#225; dashboard trước cải tiến</h1>
+<h2>3 1 C&#225;c khả năng được kế thừa</h2>
+<p>Control Room gốc đ&#227; c&#243; s&#225;u KPI, biểu đồ tốc độ ingest v&#224; xử l&#253;, consumer lag, độ trễ p95, thời gian micro-batch v&#224; bảng lịch sử. Giao diện c&#242;n c&#243; mười nh&#243;m chỉ số kỹ thuật, bảng so s&#225;nh tập luật với Spark MLlib, ma trận nhầm lẫn, biểu đồ ph&#226;n t&#225;n cảnh b&#225;o v&#224; bảng giao dịch gần nhất. Cơ chế l&#224;m mới dữ liệu mỗi hai gi&#226;y v&#224; tương t&#225;c cơ bản tr&#234;n một số biểu đồ đ&#227; tồn tại. V&#236; vậy, kh&#244;ng m&#244; tả bản gốc l&#224; m&#224;n h&#236;nh tĩnh hoặc coi đ&#225;nh gi&#225; m&#244; h&#236;nh l&#224; chức năng được bổ sung lần đầu. [1]</p>
+<h2>3 2 Hạn chế trong tổ chức v&#224; khai th&#225;c th&#244;ng tin</h2>
+<p>Nhiều biểu đồ v&#224; khối chỉ số được mở trực tiếp theo chiều dọc. C&#225;ch n&#224;y thuận tiện khi cần xem chi tiết li&#234;n tục, nhưng c&#243; thể tạo một trang d&#224;i v&#224; buộc người xem tự x&#225;c định v&#249;ng th&#244;ng tin cần ch&#250; &#253;. C&#225;c biểu đồ vận h&#224;nh sử dụng tập micro-batch đ&#227; nạp m&#224; chưa c&#243; bộ chọn cửa sổ 15 hoặc 30 batch như Workspace. Đ&#226;y l&#224; đặc điểm quan s&#225;t được của thiết kế, chưa phải số đo về qu&#225; tải nhận thức.</p>
+<p>Bảng giao dịch gốc c&#243; nhiều trường hữu &#237;ch nhưng chưa c&#243; bộ lọc nghiệp vụ kết hợp v&#224; v&#249;ng chi tiết gắn theo Event ID do ứng dụng thiết kế. Toolbar mặc định của Streamlit vẫn c&#243; thể cung cấp t&#236;m kiếm hoặc tải dữ liệu cơ bản; do đ&#243; kh&#244;ng phủ định to&#224;n bộ khả năng tra cứu v&#224; xuất dữ liệu của bản gốc. Khoảng trống cần cải thiện l&#224; một quy tr&#236;nh r&#245; r&#224;ng để thu hẹp tập kết quả, chọn đ&#250;ng giao dịch, xem chi tiết v&#224; xuất tập đ&#227; lọc.</p>
+<p>V&#237; dụ, khi cần kiểm tra giao dịch TRANSFER c&#243; số tiền lớn v&#224; đang c&#243; cảnh b&#225;o, người ph&#226;n t&#237;ch ở bản gốc bắt đầu từ bảng gần nhất v&#224; đối chiếu nhiều cột. Khi dữ liệu l&#224;m mới, việc duy tr&#236; đ&#250;ng giao dịch đang xem cũng cần được xử l&#253; theo m&#227; định danh. Đ&#226;y l&#224; t&#236;nh huống minh họa được x&#226;y dựng từ cấu tr&#250;c giao diện, kh&#244;ng được tr&#236;nh b&#224;y như phản hồi người d&#249;ng đ&#227; thu thập.</p>
+<h1>4 Nguy&#234;n tắc v&#224; kiến tr&#250;c cải tiến</h1>
+<p>Nguy&#234;n tắc ch&#237;nh l&#224; ph&#226;n t&#225;ch việc đọc v&#224; t&#237;nh dữ liệu với việc dựng giao diện. dashboard_core.load_snapshot() tiếp tục lấy dữ liệu của đợt chạy v&#224; t&#237;nh c&#225;c gi&#225; trị d&#249;ng chung. app.py chọn Workspace; view_workspace.py điều phối trang; ui_theme.py x&#226;y dựng khung chung; ui_pages.py dựng c&#225;c trang ph&#226;n t&#237;ch; ui_transactions.py thực hiện kh&#225;m ph&#225; c&#225;c bản ghi đ&#227; nạp. [1][2]</p>
+<table><thead><tr>
+<th width="32%">Th&#224;nh phần</th>
+<th width="68%">Tr&#225;ch nhiệm</th>
+</tr></thead><tbody>
+<tr>
+<td>dashboard_core.py</td>
+<td>Nạp snapshot, giới hạn truy vấn, c&#244;ng thức chỉ số v&#224; renderer gốc để đối chiếu.</td>
+</tr>
+<tr>
+<td>app.py v&#224; view_workspace.py</td>
+<td>Khởi chạy Workspace v&#224; điều phối bốn nh&#243;m nội dung.</td>
+</tr>
+<tr>
+<td>ui_theme.py v&#224; assets</td>
+<td>Thanh điều hướng, KPI d&#249;ng chung, m&#224;u sắc, biểu tượng v&#224; hero.</td>
+</tr>
+<tr>
+<td>ui_pages.py</td>
+<td>Biểu đồ vận h&#224;nh, mười nh&#243;m chỉ số, so s&#225;nh m&#244; h&#236;nh v&#224; nghiệp vụ.</td>
+</tr>
+<tr>
+<td>ui_transactions.py</td>
+<td>Bộ lọc cục bộ, lựa chọn Event ID, v&#249;ng chi tiết v&#224; CSV.</td>
+</tr>
+</tbody></table>
+<p>Đối chiếu dashboard_core.py với checkpoint 03ac9a5 chỉ ghi nhận thay đổi c&#226;u th&#244;ng b&#225;o chờ pipeline; phần truy vấn v&#224; c&#244;ng thức được r&#224; so&#225;t kh&#244;ng đổi. Kết quả AST 23 ph&#233;p g&#225;n trong dashboard-ui l&#224; bằng chứng lịch sử của giai đoạn t&#225;ch lớp, kh&#244;ng được d&#249;ng ri&#234;ng để khẳng định kiểm chứng to&#224;n bộ bản Workspace đang chạy. Bằng chứng gần hơn l&#224; bộ kiểm thử đối chiếu KPI, nh&#243;m chỉ số v&#224; đ&#225;nh gi&#225; m&#244; h&#236;nh được lưu c&#249;ng bản Workspace. [1][3][5]</p>
+<h1>5 C&#225;c nội dung tối ưu đ&#227; triển khai</h1>
+<h2>5 1 Bố cục v&#224; điều hướng thống nhất</h2>
+<p>Workspace sử dụng t&#244;ng hồng pastel v&#224; kem, biểu tượng cục bộ, thẻ chỉ số v&#224; khối giới thiệu bằng h&#236;nh dải k&#237;nh. Bốn nh&#243;m nội dung được giữ lại trong một giao diện thống nhất. Bản được quan s&#225;t ng&#224;y 29/10/2026 c&#243; c&#225;c mục Live Control Room, Metrics theo 10 tracks, Fraud &amp; Business v&#224; New data streams. Nh&#227;n nội dung chủ yếu d&#249;ng tiếng Anh nhưng điều hướng c&#242;n đan xen Việt–Anh; chưa c&#243; bộ chọn ng&#244;n ngữ. [2][4]</p>
+<p>S&#225;u KPI tiếp tục thể hiện số bản ghi nguồn ph&#225;t, Spark xử l&#253;, cảnh b&#225;o, tốc độ ingest hiện tại, th&#244;ng lượng xử l&#253; v&#224; độ trễ đầu cuối p95. Ở trang New data streams, khu vực kh&#225;m ph&#225; giao dịch được đặt trước c&#225;c KPI to&#224;n đợt chạy, ph&#249; hợp với mục đ&#237;ch kiểm tra bản ghi. Ở c&#225;c trang c&#242;n lại, KPI được đặt trước nội dung ph&#226;n t&#237;ch. C&#225;ch bố tr&#237; n&#224;y thay đổi thứ tự ưu ti&#234;n, kh&#244;ng thay đổi định nghĩa KPI.</p>
+<p class="figure"><img src="file:///C:/Users/admin/BD/paysim-big-data-baseline/artifacts/dashboard-presentation-20261029/build/running-dashboard-review/live-overview-top.png" width="600" height="412" style="width:450pt;height:309.375pt"></p>
+<p class="caption">H&#236;nh 2  Workspace m&#224;u hồng được quan s&#225;t ng&#224;y 29/10/2026</p>
+<p class="source">Nguồn: running-dashboard-review/live-overview-top.png. Ảnh chụp một thời điểm của lượt chạy thực tế; c&#225;c số kh&#244;ng d&#249;ng l&#224;m benchmark trước v&#224; sau.</p>
+<h2>5 2 Tổ chức th&#244;ng tin vận h&#224;nh theo mức ưu ti&#234;n</h2>
+<p>Trong Live Control Room, biểu đồ th&#244;ng lượng chiếm v&#249;ng lớn; consumer lag v&#224; độ trễ được đặt b&#234;n dưới; bảng đối so&#225;t v&#224; danh s&#225;ch hoạt động gần đ&#226;y nằm b&#234;n cạnh. Bộ chọn Chart window cho ph&#233;p sử dụng 15, 30 hoặc 60 micro-batch từ tối đa 60 batch đ&#227; nạp. Người xem c&#243; thể tập trung v&#224;o khoảng quan s&#225;t ngắn hơn, nhưng bộ chọn kh&#244;ng truy vấn th&#234;m lịch sử ngo&#224;i snapshot. Thời gian micro-batch v&#224; bảng lịch sử được đưa v&#224;o mục Micro-batch duration &amp; history c&#243; thể mở rộng. [1]</p>
+<p>Trạng th&#225;i PASS &#183; Data is consistent thể hiện điều kiện đối so&#225;t giữa tổng hợp giao dịch, số đ&#227; xử l&#253; v&#224; số cảnh b&#225;o theo c&#244;ng thức hiện c&#243;. Đ&#226;y l&#224; kiểm tra nhất qu&#225;n số đếm, kh&#244;ng phải chứng nhận m&#244; h&#236;nh ch&#237;nh x&#225;c hoặc to&#224;n bộ hệ thống vận h&#224;nh kh&#244;ng lỗi. Việc đặt trạng th&#225;i cạnh biểu đồ gi&#250;p người xem c&#243; th&#234;m ngữ cảnh khi theo d&#245;i dữ liệu.</p>
+<p class="figure"><img src="file:///C:/Users/admin/BD/paysim-big-data-baseline/artifacts/dashboard-presentation-20261029/build/running-dashboard-review/live-overview-charts.png" width="600" height="412" style="width:450pt;height:309.375pt"></p>
+<p class="caption">H&#236;nh 3  Biểu đồ th&#244;ng lượng v&#224; trạng th&#225;i đối so&#225;t tr&#234;n dashboard đang chạy</p>
+<p class="source">Nguồn: running-dashboard-review/live-overview-charts.png. Gi&#225; trị telemetry thay đổi theo thời điểm chụp.</p>
+<h2>5 3 Thu gọn mười nh&#243;m chỉ số</h2>
+<p>Mười nh&#243;m chỉ số được tổ chức th&#224;nh mười mục mở rộng ri&#234;ng. Mặc định nh&#243;m Ingestion v&#224; Fraud Detection được mở, c&#225;c nh&#243;m c&#242;n lại thu gọn. Gi&#225; trị, m&#227; chỉ số, phạm vi v&#224; c&#225;c ghi ch&#250; kiểm tra vẫn được hiển thị trong từng nh&#243;m. C&#225;c chỉ số cần một quy tr&#236;nh benchmark độc lập tiếp tục mang nh&#227;n Benchmark-only; kh&#244;ng suy diễn số đo đ&#243; từ telemetry đang chạy. Việc thu gọn giảm nội dung mở đồng thời, nhưng người cần đối chiếu nhiều nh&#243;m phải bấm mở th&#234;m. [1]</p>
+<h2>5 4 Điều chỉnh c&#225;ch biểu diễn dữ liệu nghiệp vụ</h2>
+<p>Phần so s&#225;nh Spark SQL rule v&#224; Spark MLlib bổ sung biểu đồ thanh nh&#243;m cho Precision, Recall v&#224; F1; bảng số chi tiết được giữ trong mục mở rộng. Ma trận nhầm lẫn tiếp tục thể hiện c&#225;c trường hợp dự đo&#225;n đ&#250;ng v&#224; sai theo nh&#227;n thực tế. C&#225;c th&#224;nh phần n&#224;y d&#249;ng kết quả đ&#225;nh gi&#225; hiện c&#243; của đợt chạy; dashboard kh&#244;ng huấn luyện hay chấm điểm lại giao dịch.</p>
+<p>Cơ cấu giao dịch được thể hiện bằng thanh ngang sắp theo số lượng, thay cho biểu đồ donut của trang giao dịch gốc. Biểu đồ số cảnh b&#225;o theo loại v&#224; biểu đồ ph&#226;n t&#225;n giữa số tiền với điểm rủi ro vẫn được giữ trong phần mở rộng. Mục ti&#234;u l&#224; tạo c&#225;ch so s&#225;nh trực quan v&#224; giảm số nội dung mở c&#249;ng l&#250;c; lợi &#237;ch về tốc độ đọc cần được đo. Kh&#244;ng coi sự thay đổi h&#236;nh dạng biểu đồ l&#224; cải thiện độ ch&#237;nh x&#225;c của m&#244; h&#236;nh.</p>
+<p class="figure"><img src="file:///C:/Users/admin/BD/paysim-big-data-baseline/artifacts/dashboard-presentation-20261029/build/running-dashboard-review/live-business.png" width="600" height="412" style="width:450pt;height:309.375pt"></p>
+<p class="caption">H&#236;nh 4  So s&#225;nh m&#244; h&#236;nh v&#224; cơ cấu giao dịch tr&#234;n Workspace đang chạy</p>
+<p class="source">Nguồn: running-dashboard-review/live-business.png. Dữ liệu thuộc lượt chạy ng&#224;y 29/10/2026, kh&#225;c snapshot d&#249;ng cho H&#236;nh 1.</p>
+<h2>5 5 Bộ lọc kết hợp v&#224; phạm vi dữ liệu</h2>
+<p>New data streams cung cấp bộ lọc theo loại giao dịch, số tiền tối thiểu v&#224; tối đa, khoảng risk score, trạng th&#225;i dự đo&#225;n, chuỗi Event ID v&#224; thời gian UTC. Người d&#249;ng c&#243; thể chọn thứ tự mới nhất hoặc cũ nhất v&#224; đặt lại c&#225;c bộ lọc. Ứng dụng cảnh b&#225;o khi khoảng tiền hoặc khoảng thời gian kh&#244;ng hợp lệ, đồng thời giải th&#237;ch trường hợp kh&#244;ng c&#243; bản ghi ph&#249; hợp. C&#225;c điều khiển vẫn được hiển thị khi đang chờ dữ liệu để người d&#249;ng nhận biết chức năng. [1][2]</p>
+<p>Bộ lọc chỉ hoạt động tr&#234;n bản sao c&#225;c bản ghi đ&#227; nạp trong bộ nhớ: tối đa 60 giao dịch ở trang kh&#225;m ph&#225; v&#224; 300 cảnh b&#225;o trong v&#249;ng kh&#225;m ph&#225; cảnh b&#225;o. Đ&#226;y l&#224; cửa sổ của đợt chạy được chọn bởi l&#245;i dữ liệu, kh&#244;ng phải c&#244;ng cụ truy vấn to&#224;n bộ lịch sử. Nh&#227;n số bản ghi hiển thị v&#224; tổng đ&#227; nạp gi&#250;p người d&#249;ng hiểu phạm vi kết quả. Kh&#244;ng t&#236;m thấy một ID c&#243; thể do bản ghi nằm ngo&#224;i cửa sổ hoặc bị loại bởi điều kiện lọc.</p>
+<p>KPI to&#224;n đợt chạy, biểu đồ tổng hợp v&#224; đ&#225;nh gi&#225; m&#244; h&#236;nh kh&#244;ng đổi theo bộ lọc cục bộ. Bộ lọc risk score chỉ chọn từ kết quả đ&#227; c&#243;, kh&#244;ng thay ngưỡng quyết định hay chạy lại suy luận. Cần giữ ranh giới n&#224;y r&#245; trong cả giao diện v&#224; b&#225;o c&#225;o để tr&#225;nh nhầm một tập đ&#227; lọc với tổng số liệu của hệ thống.</p>
+<h2>5 6 Chọn giao dịch v&#224; duy tr&#236; lựa chọn theo Event ID</h2>
+<p>Người d&#249;ng c&#243; thể chọn một d&#242;ng hoặc d&#249;ng danh s&#225;ch Event ID để mở v&#249;ng chi tiết. V&#249;ng n&#224;y hiển thị m&#227; giao dịch, loại, số tiền, điểm rủi ro, dự đo&#225;n, thời điểm chấm, độ trễ v&#224; c&#225;c trường dữ liệu li&#234;n quan. Nội dung nhắc r&#245; cảnh b&#225;o l&#224; dự đo&#225;n của m&#244; h&#236;nh, chưa x&#225;c nhận gian lận thực tế.</p>
+<p>Lựa chọn được gắn với Event ID thay v&#236; chỉ số vị tr&#237; d&#242;ng. C&#225;ch l&#224;m n&#224;y tr&#225;nh việc một d&#242;ng mới xuất hiện l&#224;m vị tr&#237; cũ trỏ sang giao dịch kh&#225;c. Khi ID kh&#244;ng c&#242;n thuộc tập lọc hoặc cửa sổ dữ liệu, ứng dụng bỏ chọn v&#224; giải th&#237;ch l&#253; do. Khi chuyển sang đợt chạy mới, lựa chọn cũ được x&#243;a. Th&#244;ng b&#225;o bản ghi mới được ph&#225;t theo sự thay đổi ID giữa c&#225;c lần l&#224;m mới, thay v&#236; giả lập hoạt động của pipeline.</p>
+<h2>5 7 Xuất CSV theo tập đang hiển thị</h2>
+<p>N&#250;t Download visible CSV xuất c&#225;c bản ghi đ&#227; lọc theo thứ tự hiện tại v&#224; c&#225;c cột hiển thị. Tệp d&#249;ng UTF-8 BOM để hỗ trợ mở văn bản c&#243; dấu trong c&#225;c c&#244;ng cụ bảng t&#237;nh phổ biến. C&#225;c chuỗi c&#243; k&#253; tự mở đầu c&#243; thể được ứng dụng bảng t&#237;nh diễn giải th&#224;nh c&#244;ng thức được th&#234;m dấu nh&#225;y đơn khi xuất. Chức năng n&#224;y phục vụ tập đang xem, kh&#244;ng thay thế xuất to&#224;n bộ lịch sử. Cũng kh&#244;ng khẳng định bản cũ kh&#244;ng thể tải dữ liệu v&#236; toolbar bảng c&#243; thể đ&#227; cung cấp thao t&#225;c tải xuống cơ bản. [1]</p>
+<p class="figure"><img src="file:///C:/Users/admin/BD/paysim-big-data-baseline/artifacts/dashboard-presentation-20261029/build/captures/workspace-transaction-result-and-details.png" width="600" height="412" style="width:450pt;height:309.375pt"></p>
+<p class="caption">H&#236;nh 5  Lựa chọn giao dịch theo Event ID v&#224; v&#249;ng chi tiết c&#249;ng n&#250;t xuất CSV</p>
+<p class="source">Nguồn: captures/workspace-transaction-result-and-details.png. V&#237; dụ d&#249;ng một giao dịch thật trong snapshot ng&#224;y 23/10/2026 được ph&#225;t lại; kh&#244;ng phải dữ liệu hiện tại của dashboard đang chạy.</p>
+<h2>5 8 L&#224;m mới giao diện v&#224; quản l&#253; chuyển động</h2>
+<p>V&#249;ng dữ liệu tiếp tục d&#249;ng fragment l&#224;m mới mỗi hai gi&#226;y. Khung hero được đặt b&#234;n ngo&#224;i fragment để phần minh họa kh&#244;ng bị khởi tạo lại theo mỗi lần nạp dữ liệu. H&#236;nh dải k&#237;nh l&#224; ảnh PNG với hiệu ứng CSS, kh&#244;ng phải bằng chứng đang xử l&#253; dữ liệu v&#224; kh&#244;ng y&#234;u cầu WebGL. Chuyển động tạm dừng khi phần minh họa ra khỏi m&#224;n h&#236;nh hoặc tab bị ẩn; chế độ prefers-reduced-motion được hỗ trợ. [2][6]</p>
+<p>CSS v&#224; nội dung hero được cache cục bộ, t&#224;i nguy&#234;n ảnh v&#224; biểu tượng được đ&#243;ng g&#243;i c&#249;ng ứng dụng. Cache kết nối MongoDB bằng cache_resource đ&#227; c&#243; từ bản gốc; đ&#226;y kh&#244;ng phải một cải tiến mới của Workspace. C&#225;c truy vấn snapshot vẫn được thực hiện theo chu kỳ l&#224;m mới. V&#236; chưa c&#243; benchmark render, CPU, RAM hay thời gian phản hồi tương t&#225;c, b&#225;o c&#225;o chỉ ghi nhận cơ chế tổ chức cập nhật v&#224; h&#224;nh vi chuyển động, kh&#244;ng khẳng định đ&#227; giảm chi ph&#237; xử l&#253; bao nhi&#234;u.</p>
+<h2>5 9 Tổ chức m&#227; v&#224; vận h&#224;nh giao diện</h2>
+<p>Việc t&#225;ch lớp giao diện gi&#250;p đặt m&#227; bố cục, biểu đồ v&#224; thao t&#225;c giao dịch v&#224;o c&#225;c tệp chuy&#234;n tr&#225;ch. Điểm khởi chạy hiện chọn một Workspace thống nhất; c&#225;c phương &#225;n giao diện trung gian kh&#244;ng c&#242;n nằm trong luồng chạy ch&#237;nh. T&#224;i nguy&#234;n runtime được đ&#243;ng g&#243;i cục bộ trong Docker image. Khi nạp m&#227; giao diện mới cần build lại dịch vụ dashboard theo cấu h&#236;nh đang sử dụng; thay đổi UI kh&#244;ng tự chứng minh producer, Spark hoặc c&#225;c dịch vụ backend kh&#225;c đang hoạt động. [2]</p>
+<h1>6 So s&#225;nh trước v&#224; sau cải tiến</h1>
+<table><thead><tr>
+<th width="18%">Ti&#234;u ch&#237;</th>
+<th width="25%">Control Room gốc</th>
+<th width="29%">Workspace</th>
+<th width="28%">Đ&#225;nh đổi hoặc giới hạn</th>
+</tr></thead><tbody>
+<tr>
+<td>Bố cục</td>
+<td>KPI v&#224; nội dung kỹ thuật xuất hiện sớm.</td>
+<td>Hero, thẻ KPI v&#224; khu vực chức năng c&#243; phong c&#225;ch thống nhất.</td>
+<td>Hero chiếm chiều cao; biểu đồ xuống dưới v&#249;ng nh&#236;n đầu.</td>
+</tr>
+<tr>
+<td>Th&#244;ng tin vận h&#224;nh</td>
+<td>Bốn biểu đồ v&#224; lịch sử tr&#236;nh b&#224;y trực tiếp.</td>
+<td>Ưu ti&#234;n throughput, trạng th&#225;i b&#234;n cạnh; chọn 15/30/60 batch.</td>
+<td>Lịch sử v&#224; duration cần mở th&#234;m; chỉ d&#249;ng dữ liệu đ&#227; nạp.</td>
+</tr>
+<tr>
+<td>Mười nh&#243;m chỉ số</td>
+<td>C&#225;c nh&#243;m mở li&#234;n tiếp.</td>
+<td>Mười mục c&#243; thể thu gọn; mặc định mở nh&#243;m 1 v&#224; 6.</td>
+<td>Giảm nội dung mở c&#249;ng l&#250;c nhưng th&#234;m lần bấm.</td>
+</tr>
+<tr>
+<td>Đ&#225;nh gi&#225; m&#244; h&#236;nh</td>
+<td>Đ&#227; c&#243; bảng rule–model v&#224; confusion matrix.</td>
+<td>Th&#234;m biểu đồ thanh so s&#225;nh, giữ bảng trong mục mở rộng.</td>
+<td>Thay c&#225;ch hiển thị, kh&#244;ng chứng minh m&#244; h&#236;nh tốt hơn.</td>
+</tr>
+<tr>
+<td>Cơ cấu giao dịch</td>
+<td>Donut tại trang giao dịch.</td>
+<td>Thanh ngang sắp theo số lượng.</td>
+<td>Lợi &#237;ch về khả năng đọc chưa được khảo s&#225;t.</td>
+</tr>
+<tr>
+<td>Bộ lọc</td>
+<td>Chưa c&#243; bộ lọc nghiệp vụ kết hợp ri&#234;ng.</td>
+<td>Loại, tiền, score, dự đo&#225;n, ID, UTC v&#224; thứ tự.</td>
+<td>Chỉ tối đa 60 giao dịch hoặc 300 cảnh b&#225;o đ&#227; nạp.</td>
+</tr>
+<tr>
+<td>Chi tiết giao dịch</td>
+<td>Th&#244;ng tin trong bảng; chưa c&#243; inspector ri&#234;ng.</td>
+<td>Chọn d&#242;ng/ID, giữ lựa chọn theo ID, giải th&#237;ch khi bỏ chọn.</td>
+<td>Bản ghi c&#243; thể rời cửa sổ v&#224; kh&#244;ng c&#242;n xem được tại đ&#226;y.</td>
+</tr>
+<tr>
+<td>Xuất dữ liệu</td>
+<td>C&#243; thể c&#243; tải xuống từ toolbar Streamlit.</td>
+<td>N&#250;t CSV cho tập lọc, UTF-8 BOM v&#224; xử l&#253; chuỗi c&#244;ng thức.</td>
+<td>Kh&#244;ng xuất to&#224;n bộ lịch sử.</td>
+</tr>
+<tr>
+<td>L&#224;m mới</td>
+<td>Đ&#227; tự cập nhật mỗi hai gi&#226;y v&#224; cache kết nối.</td>
+<td>Giữ chu kỳ; hero ngo&#224;i fragment v&#224; hỗ trợ giảm chuyển động.</td>
+<td>Chưa đo render, CPU/RAM hoặc lợi &#237;ch t&#225;c vụ.</td>
+</tr>
+<tr>
+<td>Ng&#244;n ngữ v&#224; mobile</td>
+<td>Nh&#227;n Việt–Anh; đ&#227; c&#243; ảnh kiểm tra mobile.</td>
+<td>Nội dung chủ yếu tiếng Anh; bố cục responsive, t&#224;i nguy&#234;n cục bộ.</td>
+<td>Chưa chọn Việt/Anh; chưa kiểm to&#225;n khả năng tiếp cận đầy đủ.</td>
+</tr>
+</tbody></table>
+<h1>7 Kết quả kiểm chứng v&#224; giới hạn kết luận</h1>
+<p>C&#225;c kết quả dưới đ&#226;y ph&#226;n biệt bằng chứng đ&#227; lưu với quan s&#225;t đang chạy. Kh&#244;ng xem số lượng test đạt hoặc việc kh&#244;ng ghi nhận tr&#224;n ngang ở một số viewport l&#224; chứng nhận to&#224;n bộ trải nghiệm, khả năng tiếp cận hoặc độ ổn định production.</p>
+<table><thead><tr>
+<th width="26%">Bằng chứng</th>
+<th width="39%">Kết quả ghi nhận</th>
+<th width="35%">Phạm vi kết luận</th>
+</tr></thead><tbody>
+<tr>
+<td>Kiểm thử tự động đ&#227; lưu [3]</td>
+<td>34 passed, 12 skipped, 12 subtests passed.</td>
+<td>C&#243; kiểm tra KPI, nh&#243;m chỉ số, m&#244; h&#236;nh, bộ lọc, CSV, reset v&#224; lựa chọn ID. C&#225;c test bị bỏ qua phải được giữ trong diễn giải.</td>
+</tr>
+<tr>
+<td>Browser replay [3]</td>
+<td>8 ảnh desktop, 4 ảnh mobile; s&#225;u KPI khớp tr&#234;n bốn cặp trang; kh&#244;ng browser exception hoặc tr&#224;n ngang cấp trang trong bộ kiểm tra lưu.</td>
+<td>D&#249;ng snapshot ph&#225;t lại trong bộ nhớ; kh&#244;ng phải kiểm thử tải hay x&#225;c nhận backend hiện tại.</td>
+</tr>
+<tr>
+<td>Chuyển động [6]</td>
+<td>Hero tồn tại qua refresh; dừng ngo&#224;i m&#224;n h&#236;nh v&#224; khi giảm chuyển động; kh&#244;ng y&#234;u cầu WebGL.</td>
+<td>Kiểm chứng h&#224;nh vi, kh&#244;ng đo FPS, CPU hoặc hiệu quả nghiệp vụ.</td>
+</tr>
+<tr>
+<td>Quan s&#225;t đang chạy ng&#224;y 29/10 [4]</td>
+<td>Bốn trang v&#224; c&#225;c điều khiển tương ứng được quan s&#225;t; số liệu thay đổi theo lượt chạy.</td>
+<td>X&#225;c nhận giao diện tại thời điểm xem. Kh&#244;ng đối chiếu số live với snapshot để suy ra mức cải thiện.</td>
+</tr>
+<tr>
+<td>Ghi nhận cần theo d&#245;i [4]</td>
+<td>C&#243; th&#244;ng b&#225;o tr&#236;nh duyệt Unrecognized data set trong qu&#225; tr&#236;nh chuyển trang ở phi&#234;n quan s&#225;t.</td>
+<td>Cần t&#225;i hiện để x&#225;c định nguy&#234;n nh&#226;n v&#224; ảnh hưởng; chưa đủ dữ liệu để quy kết một lỗi ổn định của bản triển khai.</td>
+</tr>
+</tbody></table>
+<p>Hiện chưa c&#243; ph&#233;p đo thời gian ho&#224;n th&#224;nh t&#225;c vụ, tỷ lệ trả lời đ&#250;ng, số thao t&#225;c hoặc mức cuộn tr&#234;n hai phi&#234;n bản. Chỉ số Snapshot response đo thời gian nạp snapshot ở tầng Python v&#224; cơ sở dữ liệu, kh&#244;ng bao gồm to&#224;n bộ qu&#225; tr&#236;nh render của tr&#236;nh duyệt. V&#236; vậy, c&#225;c nhận định như t&#236;m nhanh hơn, &#237;t sai hơn hoặc ra quyết định nhanh hơn phải được tr&#236;nh b&#224;y l&#224; lợi &#237;ch kỳ vọng.</p>
+<h1>8 Hạn chế v&#224; hướng tiếp tục cải thiện</h1>
+<p>Hero tạo nhận diện nhưng l&#224;m giảm phần dữ liệu nh&#236;n thấy ngay, đặc biệt tr&#234;n mobile. C&#243; thể thử chế độ thu gọn hoặc ẩn hero cho người vận h&#224;nh thường xuy&#234;n. C&#225;c mục mở rộng giảm nội dung mở đồng thời nhưng tăng thao t&#225;c xem s&#226;u; cần đ&#225;nh gi&#225; theo nhiệm vụ thay v&#236; chỉ dựa v&#224;o thẩm mỹ.</p>
+<p>Tra cứu hiện giới hạn trong cửa sổ dữ liệu gần nhất. Truy vấn lịch sử c&#243; ph&#226;n trang ph&#237;a m&#225;y chủ l&#224; hướng mở rộng, chưa được triển khai trong Workspace được r&#224; so&#225;t. Phạm vi bộ lọc cần tiếp tục được hiển thị r&#245;, đặc biệt khi KPI tổng vẫn giữ nguy&#234;n.</p>
+<p>Cần xem x&#233;t lựa chọn Việt–Anh, tương phản m&#224;u, sử dụng b&#224;n ph&#237;m v&#224; screen reader. Hỗ trợ giảm chuyển động l&#224; một phần của khả năng tiếp cận, chưa thay thế kiểm to&#225;n đầy đủ. Th&#244;ng b&#225;o Unrecognized data set ghi nhận khi chuyển trang cần được t&#225;i hiện v&#224; theo d&#245;i ri&#234;ng. C&#225;c hướng n&#224;y l&#224; đề xuất, kh&#244;ng được ghi th&#224;nh kết quả đ&#227; ho&#224;n th&#224;nh.</p>
+<h1>9 Kế hoạch đ&#225;nh gi&#225; hiệu quả đề xuất</h1>
+<p>Đ&#225;nh gi&#225; n&#234;n d&#249;ng c&#249;ng snapshot, thiết bị v&#224; viewport cho cả hai phi&#234;n bản. Người tham gia thực hiện c&#249;ng t&#225;c vụ; thứ tự phi&#234;n bản được đổi để giảm ảnh hưởng l&#224;m quen. Cần ghi cả kết quả đ&#250;ng sai v&#224; thời gian, thay v&#236; chỉ hỏi cảm nhận hoặc b&#225;o c&#225;o một gi&#225; trị trung b&#236;nh. Chưa đặt tỷ lệ phần trăm cải thiện khi chưa c&#243; số đo gốc.</p>
+<table><thead><tr>
+<th width="24%">T&#225;c vụ</th>
+<th width="43%">C&#225;ch thực hiện</th>
+<th width="33%">Chỉ số ghi nhận</th>
+</tr></thead><tbody>
+<tr>
+<td>Nhận biết tồn đọng</td>
+<td>Đọc số đang chờ v&#224; x&#225;c định chỉ số cần kiểm tra tiếp tr&#234;n c&#249;ng dữ liệu.</td>
+<td>Độ đ&#250;ng, thời gian v&#224; mức cuộn.</td>
+</tr>
+<tr>
+<td>Kiểm tra giao dịch</td>
+<td>T&#236;m giao dịch theo c&#249;ng điều kiện; mở chi tiết v&#224; xuất kết quả.</td>
+<td>Tỷ lệ ho&#224;n th&#224;nh đ&#250;ng, thời gian, số thao t&#225;c v&#224; lỗi chọn nhầm.</td>
+</tr>
+<tr>
+<td>So s&#225;nh m&#244; h&#236;nh</td>
+<td>Trả lời c&#226;u hỏi về Precision, Recall, F1 bằng hai c&#225;ch biểu diễn.</td>
+<td>Độ đ&#250;ng, thời gian v&#224; lỗi diễn giải.</td>
+</tr>
+<tr>
+<td>Hiệu năng giao diện</td>
+<td>Đo từ tải trang đến render ho&#224;n chỉnh v&#224; phản hồi thao t&#225;c, ở c&#249;ng điều kiện dữ liệu.</td>
+<td>Thời gian render, phản hồi tương t&#225;c, CPU/RAM; ghi ph&#226;n bố kết quả.</td>
+</tr>
+<tr>
+<td>Khả năng tiếp cận</td>
+<td>Thử b&#224;n ph&#237;m, tương phản, screen reader, mobile v&#224; giảm chuyển động.</td>
+<td>Khả năng ho&#224;n th&#224;nh t&#225;c vụ v&#224; lỗi cản trở thao t&#225;c.</td>
+</tr>
+</tbody></table>
+<h1>10 Kết luận</h1>
+<p>Workspace đ&#227; mở rộng khả năng khai th&#225;c dữ liệu của dashboard qua bộ lọc nghiệp vụ kết hợp, v&#249;ng chi tiết theo Event ID v&#224; CSV theo tập đang xem, đồng thời tổ chức lại c&#225;c nội dung gi&#225;m s&#225;t đ&#227; c&#243;. Gi&#225; trị được chứng minh ở thời điểm b&#225;o c&#225;o l&#224; sự hiện diện v&#224; h&#224;nh vi của c&#225;c chức năng, c&#249;ng t&#237;nh nhất qu&#225;n chỉ số trong phạm vi kiểm thử lưu. Mức cải thiện thực tế cho người d&#249;ng v&#224; hiệu năng tr&#236;nh duyệt cần được x&#225;c định bằng c&#225;c t&#225;c vụ v&#224; ph&#233;p đo đối chứng. C&#225;c hạn chế về chiều cao hero, cửa sổ dữ liệu, ng&#244;n ngữ v&#224; khả năng tiếp cận l&#224; cơ sở cho giai đoạn cải tiến tiếp theo.</p>
+<h1>T&#224;i liệu v&#224; bằng chứng tham chiếu</h1>
+<p class="reference">[1] M&#227; nguồn: dashboard/app.py; dashboard/dashboard_core.py; dashboard/view_workspace.py; dashboard/ui_theme.py; dashboard/ui_pages.py; dashboard/ui_transactions.py. Đối chiếu dashboard_core.py với checkpoint 03ac9a5. Thay đổi độc lập phục hồi checkpoint nằm trong spark/pipeline.py.</p>
+<p class="reference">[2] T&#224;i liệu thiết kế v&#224; vận h&#224;nh: docs/05_Huong_Dan_Cai_Tien_Dashboard.md; docs/07_Dashboard_Pastel_Redesign.md; dashboard/assets/dashboard.css; dashboard/assets/hero.html; dashboard/Dockerfile.</p>
+<p class="reference">[3] Kiểm chứng Workspace đ&#227; lưu: docs/evidence/dashboard-english/verification.md; browser-results.json; baseline-*.png v&#224; workspace-*.png. Nguồn snapshot: docs/evidence/dashboard-ui/snapshot.json, run-20261023-155039.</p>
+<p class="reference">[4] Quan s&#225;t dashboard đang chạy: artifacts/dashboard-presentation-20261029/build/running-dashboard-review/running-review.json; live-section-metadata.json; live-overview-top.png; live-overview-charts.png; live-business.png; live-page-4.png. Chụp tại localhost:8501 ng&#224;y 29/10/2026; kh&#244;ng thực hiện ghi cơ sở dữ liệu nguồn hoặc khởi động lại dịch vụ.</p>
+<p class="reference">[5] Bằng chứng lịch sử t&#225;ch l&#245;i dữ liệu: docs/evidence/dashboard-ui/data-logic-preservation.json. Chỉ d&#249;ng trong phạm vi của giai đoạn kiểm tra tương ứng.</p>
+<p class="reference">[6] Kiểm chứng chuyển động: docs/evidence/dashboard-motion/results.json; tests/check_hero_motion.py. C&#225;c ảnh v&#224; kết quả kiểm thử m&#244; tả h&#224;nh vi ở điều kiện được ghi nhận.</p>
+</body></html>

@@ -1,0 +1,9 @@
+.note-editor-controls{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:10px 0 16px}
+.note-editor-controls button{font-size:15px;padding:6px 12px}
+.note-editor-controls .edit-toggle{border-color:#953f64;color:#953f64;font-weight:600}
+.note-editor-controls .edit-toggle[aria-pressed="true"]{background:#953f64;color:#fff}
+.note-editor-controls .save-state{font-size:13px;color:#596574;line-height:1.4}
+.note-editor-controls .save-state.warning{color:#a43c2d}
+.notes .spoken[contenteditable="true"]{border-radius:4px;outline:1px dashed #b98299;outline-offset:5px;cursor:text;background:#fffafc}
+.notes .spoken[contenteditable="true"]:focus{outline:2px solid #953f64;background:#fff}
+@media print{.note-editor-controls{display:none!important}.notes .spoken[contenteditable="true"]{outline:0;background:transparent}}

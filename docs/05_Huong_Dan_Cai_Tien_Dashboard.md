@@ -1,325 +1,143 @@
-# HƯỚNG DẪN ĐỌC VÀ CẢI TIẾN GIAO DIỆN DASHBOARD PAYSIM
+# HƯỚNG DẪN ĐỌC VÀ CẢI TIẾN GIAO DIỆN DASHBOARD PAYSIM WORKSPACE
 
 ## 1. Phạm vi
 
-Trong buổi này, chọn giao diện tại [dashboard/app.py](../dashboard/app.py), rồi đọc các vùng BEFORE/AFTER trong ba file `view_*.py`. Chỉ thay đổi cách trình bày; giữ nguyên truy vấn, công thức, model và kết quả pipeline.
+Dashboard sử dụng **một giao diện Workspace mới thống nhất**, lấy cảm hứng từ [trang Framer tham chiếu do người dùng cung cấp](https://little-assistant-921809.framer.app/) cùng bảng màu hồng pastel và kem đã chọn. Ba phương án `AFTER` cũ (`9A`, `9B`, `9C`) đã được gỡ bỏ khỏi ứng dụng theo yêu cầu.
 
-`app.py` đã chuẩn bị sẵn bốn lựa chọn:
+Bản cải tiến chỉ thay đổi lớp trình bày và tương tác người dùng nhưng **giữ nguyên hoàn toàn các truy vấn cơ sở dữ liệu, công thức tính toán, mô hình và kết quả pipeline**. Dashboard đọc cùng một snapshot từ [`dashboard_core.py`](../dashboard/dashboard_core.py); tuyệt đối không huấn luyện lại mô hình hay chấm điểm lại giao dịch. Thay đổi duy nhất bên trong [`dashboard_core.py`](../dashboard/dashboard_core.py) là câu thông báo trạng thái sẵn sàng của pipeline. Nội dung hiển thị trên giao diện Workspace mới sử dụng tiếng Anh; các mã định danh trang nội bộ và dữ liệu pipeline vẫn tương thích hoàn toàn với dự án gốc.
 
-| Block | Giao diện | Trạng thái ban đầu |
-|---|---|---|
-| `BEFORE Start — 9` → `BEFORE END — 9` | Control Room gốc | Đang comment |
-| `AFTER Start — 9A` → `AFTER END — 9A` | Trung tâm vận hành | **Đang chạy** |
-| `AFTER Start — 9B` → `AFTER END — 9B` | Báo cáo giao dịch và rủi ro | Đang comment |
-| `AFTER Start — 9C` → `AFTER END — 9C` | Không gian phân tích giao dịch | Đang comment |
-
-**Chỉ bật một block trong bốn block trên.** Comment dòng chọn đang chạy rồi bỏ comment dòng chọn muốn thử. Giữ nguyên các dòng chú thích và marker Start/END, `from dashboard_core import render` và `render(view)`.
-
-Ba AFTER là ba phương án thay thế nhau, **không phải ba bước tối ưu để bật cùng lúc**. Để lấy mốc ban đầu, tắt AFTER 9A và bật BEFORE 9 trước.
-
-Mục tiêu:
-
-- hiểu dashboard lấy dữ liệu và trình bày kết quả ở đâu;
-- thử bốn giao diện trên cùng dữ liệu;
-- giải thích năm thay đổi của mỗi AFTER bằng mục đích sử dụng;
-- kiểm tra số liệu giữ nguyên và nhận diện đánh đổi giữa các bố cục.
-
----
-
-## 2. Dashboard làm gì trong pipeline?
-
-| Nội dung đã học | Vai trò trong PaySim | Vị trí code |
-|---|---|---|
-| Nguồn dữ liệu | Đọc run, telemetry, evaluation, giao dịch và alerts từ MongoDB | `load_snapshot()` trong `dashboard_core.py` |
-| Metric | Tính và định dạng số liệu từ cùng snapshot | Các hàm dùng chung trong `dashboard_core.py` |
-| Điều hướng | Chuyển giữa bốn trang nội dung | `PAGES`, `render_page()` và `setup()` của từng view |
-| Bố cục | Chọn vị trí KPI, bảng, biểu đồ và phần chi tiết | `render()` của từng view |
-| Làm mới | Cập nhật phần dữ liệu mỗi 2 giây | `live_dashboard()` trong `dashboard_core.py` |
-
-### Luồng tổng quan
+## 2. Cấu trúc kiến trúc
 
 ```text
 Kafka → Spark → HDFS / MongoDB
-                            ↓
-                   load_snapshot()
-                            ↓
-                 Cùng dữ liệu, cùng công thức
-                            ↓
-              app.py chọn đúng một giao diện
-                  ├─ BEFORE 9: Control Room
-                  ├─ AFTER 9A: Vận hành
-                  ├─ AFTER 9B: Báo cáo
-                  └─ AFTER 9C: Giao dịch
+                       ↓
+           dashboard_core.load_snapshot()
+                       ↓
+           app.py → view_workspace.py
+                       ↓
+    Overview / Pipeline metrics / Fraud & business / Transactions
 ```
 
-Dashboard đọc kết quả đã có. Đổi giao diện không train lại model, không chấm điểm lại giao dịch và không thay ngưỡng cảnh báo.
+| Tệp | Vai trò |
+|---|---|
+| [app.py](../dashboard/app.py) | Điểm khởi chạy ứng dụng PaySim Workspace |
+| [view_workspace.py](../dashboard/view_workspace.py) | Điều phối hiển thị bốn trang chức năng |
+| [ui_theme.py](../dashboard/ui_theme.py) | Bố cục dùng chung, biểu tượng (icons), thanh điều hướng, 6 KPI của đợt chạy và khung nhúng hero |
+| [dashboard.css](../dashboard/assets/dashboard.css) | Giao diện tông hồng và kem, thẻ kính mờ (glass cards), bố cục đáp ứng (responsive) và hiệu ứng tương tác |
+| [hero.html](../dashboard/assets/hero.html) | Minh họa tham chiếu từ Framer, hiệu ứng chuyển động CSS và xử lý chế độ giảm chuyển động (`reduced-motion`) |
+| [ui_pages.py](../dashboard/ui_pages.py) | Các biểu đồ, phần đánh giá mô hình và 10 nhóm chỉ số (10 metric tracks) |
+| [ui_transactions.py](../dashboard/ui_transactions.py) | Bộ lọc bản ghi, bảng dữ liệu, chi tiết từng giao dịch và xuất tệp CSV |
+| [dashboard_core.py](../dashboard/dashboard_core.py) | Nguồn truy vấn snapshot và công thức tính toán gốc (giữ nguyên) |
 
----
+Không còn các khối `AFTER` cần phải comment hay bỏ comment. Tệp [`app.py`](../dashboard/app.py) gọi trực tiếp `render(view)` thông qua [`view_workspace.py`](../dashboard/view_workspace.py).
 
-## 3. Cách đọc code dashboard
+## 3. Các trang chức năng
 
-Không cần đọc từ đầu tới cuối. Đi theo thứ tự:
+- **Overview (Tổng quan):** 6 chỉ số KPI chính, thông lượng (throughput), độ trễ (lag/latency), tiến độ xử lý và hoạt động gần đây. Cửa sổ biểu đồ 15/30/60 micro-batch lọc trực tiếp từ dữ liệu đã nạp sẵn.
+- **Pipeline metrics (Chỉ số Pipeline):** Các nhóm mở rộng cho 10 nhóm chỉ số (10 metric tracks), định nghĩa công thức và điều kiện đối soát. Các phép đo chưa thực hiện giữ nguyên nhãn `Benchmark-only`.
+- **Fraud & business (Gian lận & Nghiệp vụ):** So sánh mô hình MLlib và tập luật (Rule baseline), Precision, Recall, F1, ma trận nhầm lẫn (Confusion matrix), cơ cấu loại giao dịch và danh sách cảnh báo.
+- **Transactions (Giao dịch):** Lọc bản ghi, chọn một dòng hoặc `Event ID`, tra cứu chi tiết giao dịch và tải xuống các bản ghi đang hiển thị dưới dạng CSV.
 
-1. [app.py](../dashboard/app.py): xác định dòng chọn giao diện đang bật.
-2. [dashboard_core.py](../dashboard/dashboard_core.py), hàm `render()`: cấu hình trang và gọi vùng dữ liệu tự làm mới.
-3. `live_dashboard()` và `load_snapshot()`: xác định snapshot dùng chung trước khi chuyển sang phần hiển thị.
-4. `setup()` và `render()` trong file view đang chọn: xem cách tổ chức điều hướng và nội dung.
-5. Năm vùng BEFORE/AFTER trong file view: đối chiếu từng quyết định trình bày.
-6. `render_page()` trong lõi: xem nội dung các trang chuyên sâu được dùng lại.
+## 4. Bộ lọc dữ liệu
 
-### Các file cần đối chiếu
+Bộ lọc hỗ trợ lọc theo loại giao dịch (`type`), số tiền tối thiểu/tối đa (`amount`), khoảng điểm rủi ro (`risk score`), dự đoán cảnh báo (`alert prediction`), tìm kiếm theo `Event ID`, và khoảng ngày giờ UTC. Người dùng có thể đặt lại (reset) bộ lọc và chọn thứ tự sắp xếp hiển thị.
 
-| File | Vai trò | Marker |
-|---|---|---|
-| [view_operations.py](../dashboard/view_operations.py) | Trung tâm vận hành | `9A.1` → `9A.5` |
-| [view_report.py](../dashboard/view_report.py) | Báo cáo giao dịch và rủi ro | `9B.1` → `9B.5` |
-| [view_studio.py](../dashboard/view_studio.py) | Không gian phân tích giao dịch | `9C.1` → `9C.5` |
+**Phạm vi dữ liệu không thay đổi:** các truy vấn gốc nạp tối đa 60 micro-batch gần nhất, 60 giao dịch gần nhất và 300 cảnh báo gần nhất của đợt chạy (`run_id`) đang chọn. Ví dụ, `12/60` có nghĩa là 12 trong số 60 bản ghi đã nạp khớp với bộ lọc — đây không phải là truy vấn tìm kiếm trên toàn bộ lịch sử giao dịch trong cơ sở dữ liệu.
 
-Mỗi file có **5 cặp marker BEFORE/AFTER**. BEFORE trong các file view là đoạn tham chiếu giải thích phần được thay thế; không bật riêng các đoạn đó. Muốn chạy BEFORE hoàn chỉnh, chọn `view = None` tại `app.py`.
+- Bộ lọc không làm thay đổi 6 KPI toàn đợt chạy và kết quả đánh giá mô hình.
+- Bộ lọc điểm rủi ro chỉ lọc trên kết quả đã chấm sẵn mà không làm thay đổi ngưỡng phát hiện (`threshold`) của mô hình.
+- Chi tiết giao dịch vẫn gắn liền với `Event ID` đang chọn khi có các dòng dữ liệu mới đổ về.
+- Nếu bản ghi đang chọn rời khỏi cửa sổ snapshot hoặc không còn khớp với bộ lọc, giao diện sẽ xóa lựa chọn và hiển thị thông báo giải thích lý do.
+- Tệp CSV xuất ra chứa các bản ghi đã lọc theo đúng thứ tự hiển thị, kèm UTF-8 BOM. Các chuỗi văn bản mà ứng dụng bảng tính có thể hiểu nhầm thành công thức đều được escape an toàn khi xuất.
 
----
+## 5. Giao diện, biểu tượng và hiệu ứng chuyển động
 
-## 4. Metric và tiêu chí cần theo dõi
+Bảng màu sử dụng hồng pastel `#FFCFD9`, hồng đào `#FFDEDE`, kem `#FFF5DF` và vàng bơ `#FFE9C7`, kết hợp với màu chữ và màu biểu đồ đậm hơn để đảm bảo độ tương phản rõ ràng.
 
-| Nội dung trên dashboard | Cách đối chiếu | Điều kiện |
-|---|---|---|
-| Nguồn đã phát / Spark đã xử lý / lag | So số lượng và phần chênh lệch | Cùng snapshot |
-| Fraud alerts / alert rate | So số cảnh báo và tỷ lệ | Không đổi model hoặc ngưỡng |
-| Ingest / processing throughput | So giá trị và đơn vị events/s | Cùng lần đo |
-| End-to-end latency p95 | So giá trị và đơn vị ms | Cùng lần đo |
-| Precision / Recall / F1 / confusion matrix | So model với model, rule với rule | Cùng evaluation |
-| Bảng giao dịch / alerts | So nội dung và giới hạn bản ghi | Tối đa 60 giao dịch, 300 alerts mới nhất |
-| Khả năng đọc | Tìm KPI, đọc biểu đồ, mở chi tiết | Cùng tác vụ và kích thước màn hình |
-| Điều hướng | Mở đủ bốn trang, kiểm tra exception | Thử cả desktop và mobile |
+Biểu tượng (icons), CSS và hình ảnh minh họa được đóng gói cục bộ ngay trong dự án. Việc chạy dashboard không yêu cầu tài khoản Framer, dịch vụ animation trả phí hay CDN lúc chạy. Giấy phép biểu tượng được đính kèm tại [LICENSE-icons.txt](../dashboard/assets/LICENSE-icons.txt).
 
-**Điều kiện kết quả hợp lệ:**
+Hiệu ứng chuyển động ở phần hero tuân theo [module NovaAIWorkspace do người dùng cung cấp](https://framer.com/m/NovaAIWorkspace-we4woi.js@XOdWXg6mBixFPNlr1Zps). Thiết kế tham chiếu đó sử dụng ảnh PNG trong suốt và biến đổi CSS (`CSS transforms`). Dashboard tích hợp cùng [hình ảnh minh họa đã xuất bản](https://framerusercontent.com/images/dcjF6157kwSMfrYalKVakR6JKiI.png?width=1536&height=1024) tại `dashboard/assets/fluid-glass.png`; dữ liệu byte của ảnh được giữ nguyên, và bộ lọc CSS `hue-rotate(105deg)` chuyển tông màu sang chủ đề hồng pastel.
 
-- giữ nguyên run, truy vấn, công thức và giới hạn tối đa 60 micro-batch;
-- giữ đủ bốn trang: Live Control Room, 10 tracks, Fraud & Business và dòng dữ liệu mới;
-- giữ refresh 2 giây; không biến metric `Benchmark-only` thành số giả;
-- phân biệt chất lượng giao diện với hiệu năng hoặc chất lượng phát hiện của pipeline.
+Các thông số chuyển động được chuyển nguyên bản từ mẫu tham chiếu:
 
-Hai ảnh live chụp khác thời điểm có thể có số khác nhau. Muốn đối chiếu bằng tuyệt đối, dùng cùng snapshot hoặc tạm dừng các tiến trình ghi sau khi batch hoàn tất. Query latency và freshness phụ thuộc thời điểm mở UI, không dùng để chứng minh số liệu bằng nhau.
+| Thành phần | Hiệu ứng chuyển động |
+|---|---|
+| Dải kính 3D (Glass ribbon artwork) | `fluidFloat`, 10 giây, `ease-in-out`, lặp vô hạn (`infinite`) |
+| Quầng sáng nền (Background glow) | `fluidGlowMotion`, 8 giây, `ease-in-out`, lặp đảo chiều vô hạn (`infinite alternate`) |
+| 7 thanh sóng âm (Equalizer bars) | `waveAnimation`, 0.95 giây, `ease-in-out`, lặp đảo chiều vô hạn; độ trễ lệch nhau `−0.13` giây |
+| Thẻ kính thông tin và nhãn trạng thái | Đứng yên (tĩnh), khớp với hành vi của bản tham chiếu |
 
----
+Hình minh họa sử dụng các keyframe biến đổi sau:
 
-## 5. BEFORE — Control Room làm mốc
-
-### Điểm cần kiểm chứng
-
-Giao diện gốc tập trung tiêu đề, sáu KPI và thông tin pipeline trước các trang nội dung. Bố cục này làm mốc để xem việc đổi thứ tự đọc có giúp thực hiện một tác vụ cụ thể hay không.
-
-### Code khi bật BEFORE 9
-
-Trong `app.py`, chỉ bật dòng chọn sau:
-
-```python
-view = None
+```css
+0%, 100% { transform: translate3d(0, 0, 0) rotate(-1deg) scale(1); }
+35% { transform: translate3d(8px, -6px, 0) rotate(.8deg) scale(1.015); }
+70% { transform: translate3d(-5px, 6px, 0) rotate(-.7deg) scale(.995); }
 ```
 
-Comment cả ba dòng `import view_... as view`. Giữ nguyên lời gọi `render(view)` ở cuối file.
+Khung hero là phần minh họa không gian làm việc mang tính trang trí. Các nhãn danh mục trên đó mô tả các góc nhìn phân tích chứ không tuyên bố rằng pipeline đang chạy mô phỏng giả lập. Khung hero được gắn bên ngoài fragment làm mới dữ liệu 2 giây (`@st.fragment(run_every="2s")`), nhờ đó mỗi lần làm mới snapshot không làm khởi động lại hiệu ứng chuyển động. Chuyển động tự động tạm dừng khi hình minh họa cuộn khuất khỏi màn hình hoặc khi tab trình duyệt bị ẩn, đồng thời thiết lập `prefers-reduced-motion` của hệ điều hành sẽ tắt hoàn toàn hiệu ứng động. Bố cục trên thiết bị di động dành riêng không gian cho hình minh họa và thẻ thông tin nằm phía trên thanh điều hướng.
 
-### Kết quả tham khảo
+Triển khai này không cần Three.js, WebGL, Node.js hay bước build npm. Để thay đổi diện mạo, chỉ cần chỉnh sửa [`hero.html`](../dashboard/assets/hero.html) hoặc tệp CSS của dashboard, sau đó build lại riêng container dashboard theo hướng dẫn bên dưới.
 
-![BEFORE — Control Room](evidence/dashboard-ui/baseline-1-desktop.png)
+## 6. Khởi chạy Dashboard
 
-### Cách thử các AFTER
+Nếu các dịch vụ backend đã đang chạy trên Docker, chỉ cần build và cập nhật lại riêng container dashboard:
 
-Chạy BEFORE trước, ghi run ID và sáu KPI chung. Sau đó chọn lần lượt 9A, 9B, 9C; mỗi lần chỉ build lại dashboard. Ba trang mở đầu thay đổi mục đích và thứ tự đọc; các trang chuyên sâu tiếp tục dùng nội dung gốc trong khung của từng phiên bản.
-
----
-
-## 6. AFTER 9A — Trung tâm vận hành
-
-### Giả thuyết
-
-Đặt tốc độ xử lý ở trung tâm và cảnh báo ở cột bên cạnh có thể giúp người theo dõi pipeline đối chiếu nhanh throughput, lag và latency.
-
-### Code khi bật AFTER 9A
-
-```python
-import view_operations as view
+```powershell
+docker compose -f docker-compose.yml up -d --build --no-deps streamlit
 ```
 
-Tắt BEFORE 9 và các AFTER còn lại. Đọc năm vùng trong [view_operations.py](../dashboard/view_operations.py):
+Nếu dự án đang chạy ở cấu hình tiết kiệm bộ nhớ (`low-memory`), hãy giữ nguyên tệp overlay tương ứng:
 
-| Block | Thay đổi hiển thị | Mục đích |
-|---|---|---|
-| `9A.1` | Nền tối, màn hình rộng, điều hướng sidebar | Dành phần chính cho giám sát |
-| `9A.2` | Ba KPI tốc độ/xử lý phía trên | Quét nhanh tình trạng pipeline |
-| `9A.3` | Throughput lớn; lag và latency bên dưới | Đọc các lần đo cạnh nhau |
-| `9A.4` | Cột cảnh báo, latency và tiến độ bên phải | Đối chiếu với biểu đồ chính |
-| `9A.5` | Nhật ký và duration của batch ở cuối | Tra cứu chi tiết sau khi thấy bất thường |
-
-### Kết quả tham khảo
-
-![AFTER 9A — Trung tâm vận hành](evidence/dashboard-ui/operations-1-desktop.png)
-
-Sáu KPI chung khớp BEFORE trên snapshot kiểm thử. Bố cục ưu tiên màn hình rộng; trên điện thoại các cột xếp lại và cần cuộn nhiều hơn. Chưa đo thời gian người dùng tìm thông tin nên không kết luận bố cục này luôn nhanh hơn.
-
----
-
-## 7. AFTER 9B — Báo cáo giao dịch và rủi ro
-
-### Giả thuyết
-
-Đưa kết quả nghiệp vụ và chất lượng phát hiện lên trước có thể giúp người đọc báo cáo hiểu quy mô xử lý, số cảnh báo và đánh đổi của model theo trình tự.
-
-### Code khi bật AFTER 9B
-
-```python
-import view_report as view
+```powershell
+docker compose -f docker-compose.yml -f docker-compose.low-memory.yml up -d --build --no-deps streamlit
 ```
 
-Tắt AFTER 9A trước khi bật 9B. Đọc năm vùng trong [view_report.py](../dashboard/view_report.py):
+Mở <http://127.0.0.1:8501>. `Dockerfile` sao chép mã nguồn và tài nguyên vào trong image khi build, vì vậy việc chỉ tải lại trình duyệt hoặc restart một image cũ sẽ không nạp được giao diện mới. Các lệnh trên chỉ cập nhật container dashboard; cờ `--no-deps` không tự khởi động các dịch vụ backend còn thiếu. Để khởi động toàn bộ dự án từ đầu, hãy dùng `start.bat` trên Windows hoặc `./start.sh` trên macOS/Linux.
 
-| Block | Thay đổi hiển thị | Mục đích |
-|---|---|---|
-| `9B.1` | Khổ đọc 1120px, nền kem, chữ serif, mục lục | Tạo bố cục báo cáo đọc tuần tự |
-| `9B.2` | Hai kết quả xử lý/cảnh báo kèm diễn giải | Nêu kết quả chính trước |
-| `9B.3` | Thanh ngang precision/recall/F1 của model và rule | So chất lượng phát hiện |
-| `9B.4` | Cơ cấu giao dịch và confusion matrix | Giải thích thành phần dữ liệu và kết quả phân loại |
-| `9B.5` | Thông số vận hành và phụ lục ở cuối | Giữ chi tiết mà không chiếm phần mở đầu |
+Để chạy dashboard trực tiếp trên máy host kết nối tới một MongoDB đang mở sẵn:
 
-### Kết quả tham khảo
-
-![AFTER 9B — Báo cáo giao dịch và rủi ro](evidence/dashboard-ui/report-1-desktop.png)
-
-Sáu KPI chung khớp BEFORE; biểu đồ dùng lại precision/recall/F1 từ công thức gốc. Telemetry nằm trong phụ lục mở rộng nên cần thêm thao tác khi muốn giám sát batch liên tục.
-
----
-
-## 8. AFTER 9C — Không gian phân tích giao dịch
-
-### Giả thuyết
-
-Mở thẳng bảng giao dịch và đặt chi tiết bên cạnh có thể giúp người phân tích đọc một bản ghi mà vẫn giữ được ngữ cảnh của danh sách.
-
-### Code khi bật AFTER 9C
-
-```python
-import view_studio as view
+```powershell
+$env:MONGO_URI = 'mongodb://127.0.0.1:27017'
+.\.venv\Scripts\python.exe -m streamlit run dashboard/app.py
 ```
 
-Đọc năm vùng trong [view_studio.py](../dashboard/view_studio.py):
+## 7. Kiểm chứng (Verification)
 
-| Block | Thay đổi hiển thị | Mục đích |
-|---|---|---|
-| `9C.1` | Thanh công cụ gọn, trang mặc định là giao dịch | Đi thẳng vào dữ liệu cần đọc |
-| `9C.2` | Bảng 60 giao dịch chiếm vùng làm việc chính | Ưu tiên đối chiếu bản ghi |
-| `9C.3` | Bộ chọn và khung chi tiết bên phải | Xem số tiền, risk score, prediction và thời điểm |
-| `9C.4` | Biểu đồ loại giao dịch và risk score dưới bảng | Đối chiếu giao dịch với phân bố chung |
-| `9C.5` | Sáu KPI chung ở cuối trang | Giữ trạng thái run mà không lấn vùng bảng |
-
-### Kết quả tham khảo
-
-![AFTER 9C — Không gian phân tích giao dịch](evidence/dashboard-ui/studio-4-desktop.png)
-
-Bộ chọn chi tiết chỉ đọc bản ghi đã tải; không ghi dữ liệu hoặc chấm điểm lại. Sáu KPI chung khớp BEFORE. Bảng nhiều cột cần cuộn ngang trên màn hình nhỏ.
-
-### So sánh cả bốn giao diện — cùng snapshot
-
-| Giao diện | Nội dung đọc trước | Kiểu bố cục | Đánh đổi |
-|---|---|---|---|
-| BEFORE 9 | KPI và pipeline | Control Room tổng quan | Cần chuyển trang để đi sâu |
-| AFTER 9A | Throughput, lag, latency | Biểu đồ lớn và cột giám sát | Nhiều vùng cần cuộn trên mobile |
-| AFTER 9B | Kết quả và chất lượng phát hiện | Báo cáo theo khổ đọc | Telemetry nằm trong phụ lục |
-| AFTER 9C | Giao dịch và chi tiết | Bảng và khung chi tiết | Bảng rộng cần cuộn ngang |
-
-**Không có “bản kết hợp ba AFTER”.** Chọn theo tác vụ cần phục vụ, rồi kiểm tra các đánh đổi còn lại. Không đánh giá tốt hơn chỉ vì màu khác.
-
----
-
-## 9. Quy trình thực hành trên dashboard
-
-```text
-Bật BEFORE → ghi số liệu và chụp giao diện
-           → tắt BEFORE, bật một AFTER
-           → build lại dashboard → mở cùng dữ liệu
-           → so kết quả, bố cục và điều kiện hợp lệ
-```
-
-### Chuẩn bị cùng điều kiện
-
-Khởi động toàn hệ thống lần đầu bằng `./start.sh` hoặc `start.bat` theo README. Giữ nguyên backend, model, threshold và cấu hình tài nguyên. Dùng cùng snapshot khi cần so số liệu tuyệt đối; cách tạo và chụp snapshot nằm trong [biên bản kiểm thử](06_Kiem_Thu_Dashboard_Va_Khoi_Dong.md).
-
-### Thực hiện từng lượt
-
-1. Trong `app.py`, comment dòng chọn đang bật và bỏ comment đúng dòng chọn muốn chạy. Không bỏ dấu `#` của marker hoặc lời giải thích. Nếu bật nhiều import, Python dùng import cuối cùng; đây là cấu hình sai bài thực hành.
-2. Tại thư mục gốc dự án, build lại riêng dashboard:
-
-   ```bash
-   docker compose -f docker-compose.yml up -d --build --no-deps streamlit
-   ```
-
-   Nếu đang chạy chế độ nhẹ, dùng cùng overlay:
-
-   ```bash
-   docker compose -f docker-compose.yml -f docker-compose.low-memory.yml up -d --build --no-deps streamlit
-   ```
-
-   Hai lệnh dùng được trong PowerShell và terminal macOS/Linux. File Python được COPY vào image nên **chỉ refresh browser hoặc restart container sẽ không nhận code vừa sửa**.
-
-3. Mở <http://127.0.0.1:8501>, refresh và kiểm tra đúng bố cục đã chọn.
-4. Mở đủ bốn trang. So sáu KPI, model/rule, confusion matrix và dữ liệu giao dịch trên cùng snapshot.
-5. Xác định năm vùng thay đổi; chụp desktop/mobile và ghi lợi ích, đánh đổi của từng phiên bản.
-6. Đổi sang phiên bản tiếp theo và lặp lại. Không thay công thức trong `dashboard_core.py`.
-7. Đề xuất bố cục riêng; nêu tác vụ được cải thiện và ít nhất một tình huống khó đọc hơn.
-
-### Bảng báo cáo
-
-| Nội dung | BEFORE 9 | AFTER 9A | AFTER 9B | AFTER 9C |
-|---|---|---|---|---|
-| RUN_ID / snapshot | | | | |
-| Tác vụ cần thực hiện | | | | |
-| Nguồn đã phát / đã xử lý / lag | | | | |
-| Alerts / alert rate | | | | |
-| Ingest / processing throughput | | | | |
-| End-to-end latency p95 | | | | |
-| Precision / Recall / F1 có giữ nguyên? | | | | |
-| Đủ bốn trang, không exception? | | | | |
-| Năm vùng thay đổi | — | | | |
-| Ảnh desktop / mobile | | | | |
-| Khó đọc / cần thêm thao tác ở đâu? | | | | |
-| Phù hợp tác vụ đã chọn? | | | | |
-
----
-
-## 10. Điều kiện của kết quả tham khảo
-
-- Ảnh gốc chụp bằng Chromium/Playwright: desktop 1600 × 1600, mobile 390 × 844. Ảnh viewport không bao gồm toàn bộ phần cần cuộn.
-- Dữ liệu lấy từ pipeline thật, run `run-20261023-155039`, rồi sao chép vào database evidence riêng; không ghi đè nguồn.
-- Cùng snapshot: nguồn phát **5.200**, xử lý **4.700**, lag **500**, alerts **1.004**, alert rate **21,36%**, ingest **50,0 events/s**, processing **70,3 events/s**, latency p95 **14.905 ms**.
-- Nhãn RUNNING/LIVE trong ảnh là trạng thái được sao chép; database evidence không tiếp tục nhận giao dịch. Freshness và thời gian query thay đổi theo thời điểm mở trang.
-- AppTest sau khi đổi bố cục: **7 test đạt**, gồm đối chiếu sáu KPI chung của ba AFTER trên cả bốn trang và các trường hợp dữ liệu rỗng.
-- Browser đã mở **16 trang desktop và 4 mobile**, không exception; sáu KPI chung khớp ở **12/12 cặp BEFORE/AFTER**.
-- Chưa đo khả năng sử dụng với người học, không kết luận tăng tốc pipeline hoặc giảm thời gian thao tác từ các ảnh này.
-
-### Tự chạy kiểm thử
-
-Dùng Python 3.11 trở lên và môi trường kiểm thử riêng, không sửa Python hệ thống:
-
-```bash
+```powershell
 python -m venv .venv
-# macOS/Linux:
-source .venv/bin/activate
-# Windows PowerShell, thay lệnh activate ở trên bằng:
-# .\.venv\Scripts\Activate.ps1
-pip install -r dashboard/requirements.txt -r tests/requirements.txt
-python -m pytest -q tests
+.\.venv\Scripts\python.exe -m pip install -r dashboard/requirements.txt -r tests/requirements.txt
+.\.venv\Scripts\python.exe -m pytest -q tests
 ```
 
-`test_dashboard.py` dùng dữ liệu cố định trong Mongo giả để đối chiếu sáu KPI chung trên đủ bốn trang, đồng thời kiểm tra trạng thái rỗng. Đây là kiểm thử UI, không thay thế pipeline end-to-end. `test_windows_launcher.py` chạy PowerShell thật khi có sẵn, nhưng dùng Docker giả để tạo lỗi có kiểm soát.
+Tệp [`tests/test_dashboard.py`](../tests/test_dashboard.py) đối chiếu giao diện Workspace mới với bộ render gốc trên cùng dữ liệu MongoDB trong bộ nhớ: kiểm tra đủ 6 KPI, toàn bộ 10 nhóm chỉ số (10 metric tracks), kết quả đánh giá mô hình/tập luật, giới hạn truy vấn, thứ tự sắp xếp, cô lập đợt chạy (`run isolation`), bộ lọc, xuất CSV, thao tác đặt lại bộ lọc (reset) và việc giữ lựa chọn giao dịch qua các chu kỳ làm mới. Bộ kiểm thử cũng kiểm tra trực tiếp entrypoint [`app.py`](../dashboard/app.py) và các nhãn hiển thị.
 
-Streamlit được khóa ở 1.50.0, Altair ở 5.5.0. Bảng dùng chiều rộng mặc định và chart dùng mặc định của API phiên bản này; tham khảo [dataframe](https://docs.streamlit.io/1.50.0/develop/api-reference/data/st.dataframe) và [Altair chart](https://docs.streamlit.io/1.50.0/develop/api-reference/charts/st.altair_chart).
+Kiểm thử trình duyệt (Browser QA) có thể phát lại (replay) một snapshot pipeline đã lưu **ngay trong bộ nhớ**, mà không ghi đè vào cơ sở dữ liệu MongoDB nguồn:
 
-### Evidence gốc
+```powershell
+.\.venv\Scripts\python.exe tests/capture_dashboard.py --output docs/evidence/dashboard-english --snapshot-file docs/evidence/dashboard-ui/snapshot.json
+```
 
-- [Biên bản kiểm thử và toàn bộ ảnh](06_Kiem_Thu_Dashboard_Va_Khoi_Dong.md).
-- [Snapshot và metadata](evidence/dashboard-ui/snapshot.json).
-- [Đối chiếu KPI trên snapshot thật](evidence/dashboard-ui/browser-equivalence.json).
-- [Log kiểm thử UI sau khi đổi bố cục](evidence/dashboard-ui/ui-redesign-tests.txt).
+Bỏ tùy chọn `--snapshot-file` nếu muốn đọc trực tiếp từ cơ sở dữ liệu MongoDB thật. Việc đối chiếu khớp tuyệt đối các con số đòi hỏi phải chạy trên cùng một snapshot đã lưu. Độ tươi mới của dữ liệu (`freshness`) và độ trễ truy vấn (`query latency`) phụ thuộc vào thời điểm quan sát thực tế chứ không phải là hằng số nghiệp vụ cố định.
 
-Phân biệt fixture trong unit test với dữ liệu pipeline thật trong ảnh. Phần điều tra launcher và giới hạn kiểm thử hệ điều hành được ghi riêng trong biên bản.
+Tệp [`tests/check_hero_motion.py`](../tests/check_hero_motion.py) kiểm tra chuyển động thực tế của hình minh họa khi ở trạng thái nghỉ, thông số animation, hành vi `reduced-motion`, bố cục mobile và tính bền vững của iframe qua các lần làm mới dữ liệu. Chế độ xem trước độc lập (`--preview`) cho phép kiểm tra hiệu ứng chuyển động mà không cần khởi động lại dashboard chính:
 
-Kết luận bài thực hành phải trả lời: giao diện nào phù hợp **tác vụ mục tiêu**, phải trả giá bằng gì, và số liệu có được giữ nguyên khi đổi cách trình bày không?
+```powershell
+.\.venv\Scripts\python.exe tests/check_hero_motion.py --preview --output docs/evidence/dashboard-motion
+```
+
+Bằng chứng kiểm thử trình duyệt của giao diện Workspace hiện tại nằm trong `docs/evidence/dashboard-english/`; bằng chứng kiểm thử chuyển động nằm trong `docs/evidence/dashboard-motion/`. Hãy đọc các tệp kết quả và chú thích để nắm rõ nguồn dữ liệu cũng như phạm vi kiểm thử. Các snapshot đã lưu chỉ phản ánh trạng thái pipeline tại thời điểm ghi nhận, không dùng để khẳng định rằng pipeline trực tiếp hiện tại đang chạy.
+
+Hình ảnh và báo cáo trong `docs/evidence/dashboard-ui/`, `docs/evidence/dashboard-pastel/` và [tài liệu kiểm thử trước đó](06_Kiem_Thu_Dashboard_Va_Khoi_Dong.md) mô tả các phiên bản lịch sử trước đây. Xem thêm [ghi chú triển khai](07_Dashboard_Pastel_Redesign.md) để nắm rõ các quyết định thiết kế và ranh giới dữ liệu.
+
+## 8. Khôi phục mốc Checkpoint trước khi thiết kế lại
+
+Mốc checkpoint cục bộ trước khi thiết kế lại giao diện là commit `03ac9a5` — `chore: checkpoint before dashboard redesign` (bao gồm cả hướng dẫn 4 phiên bản `BEFORE` / `AFTER 9A, 9B, 9C` ban đầu). Công việc thiết kế lại nằm trên nhánh `dashboard/pastel-framer-redesign`.
+
+Sau khi lưu lại công việc hiện tại, bạn có thể mở lại mốc checkpoint đó trên một nhánh riêng bằng lệnh:
+
+```powershell
+git switch -c dashboard/checkpoint-review 03ac9a5
+```
+
+Checkpoint này bảo toàn nguyên trạng thái mã nguồn đã lưu trước đó. Lưu ý rằng Git chỉ khôi phục mã nguồn được theo dõi (tracked files), không tự động quay lui dữ liệu trong volumes MongoDB/HDFS hay các tệp nằm trong `.gitignore`.

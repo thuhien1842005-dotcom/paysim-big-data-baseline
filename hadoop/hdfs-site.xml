@@ -41,4 +41,12 @@
     <name>dfs.client.use.datanode.hostname</name>
     <value>true</value>
   </property>
+  <property>
+    <name>dfs.namenode.safemode.threshold-pct</name>
+    <value>0.95f</value>
+  </property>
+  <property>
+    <name>dfs.namenode.safemode.min.datanodes</name>
+    <value>1</value>
+  </property>
 </configuration>

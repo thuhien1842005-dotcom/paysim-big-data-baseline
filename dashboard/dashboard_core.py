@@ -454,7 +454,7 @@ def render_page(snapshot, page):
 def live_dashboard(view=None, selected_page=None):
     snapshot = load_snapshot()
     if snapshot is None:
-        st.info("Pipeline đang chuẩn bị. Replayer sẽ tự chạy sau khi Spark sẵn sàng.")
+        st.info("The pipeline is getting ready. The replayer starts after Spark is ready.")
         return
     if view is not None:
         view.render(snapshot, selected_page)

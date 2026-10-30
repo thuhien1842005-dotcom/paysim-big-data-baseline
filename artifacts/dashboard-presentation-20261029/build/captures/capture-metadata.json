@@ -1,0 +1,152 @@
+{
+  "source": "saved real pipeline snapshot replayed in isolated mongomock memory",
+  "snapshot_file": "docs\\evidence\\dashboard-ui\\snapshot.json",
+  "snapshot_run_id": "run-20261023-155039",
+  "captured_snapshot_at": "2026-10-23 15:52:33.831000",
+  "viewport": {
+    "width": 1600,
+    "height": 1100
+  },
+  "port": 8527,
+  "chosen_event_id": "run-20261023-155039-c001-e000000004201",
+  "source_database_writes": false,
+  "docker_restarts": false,
+  "current_navigation_labels": [
+    "📡 Live Control Room",
+    "🎯 Metrics theo 10 tracks",
+    "🛡️ Fraud & Business",
+    "🔎 New data streams"
+  ],
+  "evidence_note": "Current source navigation and hero wording differ from saved dashboard-english images; no source files modified.",
+  "captures": [
+    {
+      "file": "workspace-overview-charts.png",
+      "anchor": "Ingest and processing throughput",
+      "actions": [
+        "Overview",
+        "scroll below hero and run KPI cards",
+        "Chart window remains 60 micro-batches; snapshot contains 10 batches"
+      ],
+      "anchor_box": {
+        "x": 87.1875,
+        "y": 328.140625,
+        "width": 977.15625,
+        "height": 26.59375
+      },
+      "main_scroll_top": 884,
+      "browser_errors": [],
+      "horizontal_page_overflow": false
+    },
+    {
+      "file": "workspace-metrics-default.png",
+      "anchor": "Metrics across 10 tracks",
+      "actions": [
+        "Pipeline metrics",
+        "scroll below hero and run KPI cards",
+        "default 01 and 06 groups open"
+      ],
+      "anchor_box": {
+        "x": 71.1875,
+        "y": 119.96875,
+        "width": 1457.625,
+        "height": 26.59375
+      },
+      "main_scroll_top": 909,
+      "browser_errors": [],
+      "horizontal_page_overflow": false
+    },
+    {
+      "file": "workspace-metrics-groups.png",
+      "anchor": "Metrics across 10 tracks",
+      "actions": [
+        "Pipeline metrics",
+        "collapse default-open groups 01 and 06",
+        "scroll to metrics heading"
+      ],
+      "anchor_box": {
+        "x": 71.1875,
+        "y": 324.96875,
+        "width": 1457.625,
+        "height": 26.59375
+      },
+      "main_scroll_top": 704,
+      "browser_errors": [],
+      "horizontal_page_overflow": false
+    },
+    {
+      "file": "workspace-business-comparison.png",
+      "anchor": "Rule baseline vs Spark MLlib",
+      "actions": [
+        "Fraud & business",
+        "scroll below hero and KPI cards",
+        "existing saved model/rule evaluations unchanged"
+      ],
+      "anchor_box": {
+        "x": 87.1875,
+        "y": 155.96875,
+        "width": 810.5625,
+        "height": 26.59375
+      },
+      "main_scroll_top": 889,
+      "browser_errors": [],
+      "horizontal_page_overflow": false
+    },
+    {
+      "file": "workspace-transactions-filters.png",
+      "anchor": "Latest transactions processed by Spark",
+      "actions": [
+        "Transactions",
+        "scroll below decorative hero",
+        "all 60 loaded transactions, default filters"
+      ],
+      "anchor_box": {
+        "x": 71.1875,
+        "y": 120.375,
+        "width": 1457.625,
+        "height": 26.59375
+      },
+      "main_scroll_top": 518,
+      "browser_errors": [],
+      "horizontal_page_overflow": false
+    },
+    {
+      "file": "workspace-transaction-result-and-details.png",
+      "anchor": "Showing 1/60 loaded transactions · up to 60 records · searches this snapshot only.",
+      "actions": [
+        "Transactions",
+        "search actual snapshot Event ID run-20261023-155039-c001-e000000004201",
+        "select matching existing Event ID from selector",
+        "scroll to result count, table, CSV button and selected inspector"
+      ],
+      "anchor_box": {
+        "x": 71.1875,
+        "y": 119.75,
+        "width": 1457.625,
+        "height": 22.390625
+      },
+      "main_scroll_top": 971,
+      "browser_errors": [],
+      "horizontal_page_overflow": false
+    },
+    {
+      "file": "workspace-transaction-inspector.png",
+      "anchor": "Selected transaction",
+      "actions": [
+        "Transactions",
+        "actual selected Event ID run-20261023-155039-c001-e000000004201",
+        "scroll to selected transaction inspector",
+        "CSV button is earlier in the page; result-and-details capture shows it"
+      ],
+      "anchor_box": {
+        "x": 112.1875,
+        "y": 119.734375,
+        "width": 136.9375,
+        "height": 25.59375
+      },
+      "main_scroll_top": 1315,
+      "browser_errors": [],
+      "horizontal_page_overflow": false
+    }
+  ],
+  "browser_errors": []
+}

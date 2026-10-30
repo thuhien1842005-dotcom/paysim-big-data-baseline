@@ -1,0 +1,63 @@
+{
+  "source": "Running dashboard at http://127.0.0.1:8501",
+  "captured_local_date": "2026-10-29",
+  "viewport": [
+    1600,
+    1100
+  ],
+  "details": "Each image is a momentary view of live values; screenshots were taken sequentially.",
+  "captures": [
+    {
+      "file": "live-overview-top.png",
+      "section": "Live Control Room",
+      "anchor": "top"
+    },
+    {
+      "file": "live-overview-charts.png",
+      "section": "Live Control Room",
+      "anchor": "Ingest and processing throughput",
+      "anchor_box": {
+        "x": 87.1875,
+        "y": 328.140625,
+        "width": 977.15625,
+        "height": 26.59375
+      }
+    },
+    {
+      "file": "live-metrics.png",
+      "section": "🎯 Metrics theo 10 tracks",
+      "anchor": "Metrics across 10 tracks",
+      "anchor_box": {
+        "x": 71.1875,
+        "y": 124.96875,
+        "width": 1457.625,
+        "height": 26.59375
+      }
+    },
+    {
+      "file": "live-business.png",
+      "section": "🛡️ Fraud & Business",
+      "anchor": "Rule baseline vs Spark MLlib",
+      "anchor_box": {
+        "x": 87.1875,
+        "y": 155.96875,
+        "width": 810.5625,
+        "height": 26.59375
+      }
+    },
+    {
+      "file": "live-filters.png",
+      "section": "🔎 New data streams",
+      "anchor": "Latest transactions processed by Spark",
+      "anchor_box": {
+        "x": 71.1875,
+        "y": 125.375,
+        "width": 1457.625,
+        "height": 26.59375
+      }
+    }
+  ],
+  "browser_errors": [
+    "Unrecognized data set: 270259b2c2a60c933215a6ee3e5802f2"
+  ]
+}

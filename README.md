@@ -74,7 +74,7 @@ cả hai kiến trúc. Healthcheck đọc HTTP/JMX, không khởi động thêm 
 
 ## Giao diện
 
-- [Bài thực hành: ba phiên bản giao diện BEFORE/AFTER](docs/05_Huong_Dan_Cai_Tien_Dashboard.md)
+- [Hướng dẫn dashboard PaySim Workspace](docs/05_Huong_Dan_Cai_Tien_Dashboard.md)
 - [Biên bản kiểm thử và ảnh evidence gốc](docs/06_Kiem_Thu_Dashboard_Va_Khoi_Dong.md)
 
 - Dashboard: <http://127.0.0.1:8501>

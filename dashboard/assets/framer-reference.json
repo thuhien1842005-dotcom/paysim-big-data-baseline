@@ -1,0 +1,11 @@
+{
+  "reference_page": "https://little-assistant-921809.framer.app/",
+  "module_provided_by_user": "https://framer.com/m/NovaAIWorkspace-we4woi.js@XOdWXg6mBixFPNlr1Zps",
+  "resolved_module": "https://framerusercontent.com/modules/EnWq06uJZYhT4hAq8lkz/XOdWXg6mBixFPNlr1Zps/NovaAIWorkspace.js",
+  "artwork_url": "https://framerusercontent.com/images/dcjF6157kwSMfrYalKVakR6JKiI.png?width=1536&height=1024",
+  "local_artwork": "fluid-glass.png",
+  "artwork_sha256": "e4f0f8ce16bb5a00eafe0d7b11c44608ebb95c3765f9cbfdc0fbfd23bbd86d2e",
+  "artwork_dimensions": [1536, 1024],
+  "adaptation": "Original PNG bytes unchanged. Local HTML uses the source float, glow and seven-bar wave timings/keyframes. CSS hue-rotate(105deg) maps the artwork to pink. Layout and explanatory text are adapted for the PaySim workspace.",
+  "attribution": "NovaAIWorkspace reference supplied by the user. This provenance record does not assign a new license to the source artwork."
+}

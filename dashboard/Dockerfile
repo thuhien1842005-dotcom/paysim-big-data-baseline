@@ -9,6 +9,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY *.py ./
+COPY assets/ ./assets/
 
 RUN python -m compileall -q /opt/app
 
